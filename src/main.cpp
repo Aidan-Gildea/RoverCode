@@ -35,21 +35,28 @@ void loop()
   currentState = digitalRead(sensorPin);
 
   if (currentState != previousState) {
+
     if (currentState == HIGH) {
       tickCount++;
       currentTickTime = millis();
-      deltaTime = currentTickTime - lastTickTime;
-      lastTickTime = currentTickTime;
 
-      rpm = (tickCount / (deltaTime / 60000.0)); // Convert to RPM
+      deltaTime = currentTickTime - lastTickTime;
+      
+      if(deltaTime > 0)
+      {
+        rpm = 6000.0 / deltaTime; // Calculate RPM
+        
+      }
+      lastTickTime = currentTickTime;
+      
       Serial.print("RPM: ");
+       // Convert to RPM
       Serial.println(rpm);
     }
   }
 
   previousState = currentState;
 
-  delay(100); // Adjust delay as needed
-  
+  delay(1); // Adjust delay as needed
 
 }
