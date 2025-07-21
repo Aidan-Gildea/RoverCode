@@ -46,11 +46,65 @@ struct Ultrasonic
         // Measure the duration of the echo
         unsigned long duration = pulseIn(echoPin, HIGH);
 
-        unsigned long distance = duration * 0.034 / 2;
+        unsigned long distance = ((duration * 0.034) / 2);
 
         return distance;
     }
 };
 
 
+struct HBridge
+{
+    int enPin;
+    int in1Pin;
+    int in2Pin;
 
+    HBridge(int en, int in1, int in2) : enPin(en), in1Pin(in1), in2Pin(in2) {
+        pinMode(enPin, OUTPUT);
+        pinMode(in1Pin, OUTPUT);
+        pinMode(in2Pin, OUTPUT);
+        digitalWrite(enPin, LOW);
+        digitalWrite(in1Pin, LOW);
+        digitalWrite(in2Pin, LOW);
+    }
+
+    void setMotorSpeed(int speed) {
+        analogWrite(enPin, speed);
+    }
+
+    void driveForward() {
+        digitalWrite(in1Pin, HIGH);
+        digitalWrite(in2Pin, LOW);
+    }
+
+    void driveBackward() {
+        digitalWrite(in1Pin, LOW);
+        digitalWrite(in2Pin, HIGH);
+    }
+
+    void stop() {
+        digitalWrite(in1Pin, LOW);
+        digitalWrite(in2Pin, LOW);
+    }
+};
+
+
+// unfinished :(
+struct Encoder
+{
+    int sensorPin;
+    int currentState;
+    int previousState;
+    volatile int tickCount;
+
+    Encoder(int a, int b) : sensorPin(a), currentState(0), previousState(0), tickCount(0) {
+        pinMode(sensorPin, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(sensorPin), &Encoder::updatePosition, CHANGE);
+    }
+
+    static void updatePosition() {
+        // This function will be called on interrupt
+        // Logic to update position based on pin states
+        // Needs to be implemented based on specific encoder type
+    }
+};
