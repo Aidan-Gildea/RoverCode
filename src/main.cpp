@@ -1,62 +1,47 @@
 #include <Arduino.h>
 #include <test.h>
 
-#define sensorPin 12
 
-#define enA_1 7
-#define in1_1 6
-#define in2_1 5
+// left front
+#define enA_leftFront 11
+#define in2_leftFront 22
+#define in1_leftFront 23
 
-HBridge hBridge(enA_1, in1_1, in2_1);
+// right motor
+#define enA_leftBack 12
+#define in1_leftBack 25
+#define in2_leftBack 24
+
+// right front
+#define enA_rightFront 10
+#define in1_rightFront 48
+#define in2_rightFront 50
+
+//right back
+#define enA_rightBack 8
+#define in1_rightBack 49
+#define in2_rightBack 51
 
 
-int currentState;
-int previousState;
-volatile int tickCount;
+HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
+HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
+HBridgeMotor backLeft(enA_leftBack, in1_leftBack, in2_leftBack);
+HBridgeMotor backRight(enA_rightBack, in1_rightBack, in2_rightBack);
 
-unsigned long lastTickTime;
-unsigned long currentTickTime;
-unsigned long deltaTime;
-float rpm;
+void setup() 
+{
+  backRight.setMotorSpeed(BR_SPEED); // 170 - 230
+  backLeft.setMotorSpeed(BL_SPEED);
+  topLeft.setMotorSpeed(TL_SPEED);
+  topRight.setMotorSpeed(TR_SPEED);
 
-
-void setup() {
-  Serial.begin(9600);
-
-  pinMode(sensorPin, INPUT);
-
-  hBridge.setMotorSpeed(255);
-  hBridge.driveForward();
-
+  DriveForward(topLeft, topRight, backLeft, backRight);
 }
 
 void loop()
 {
-  currentState = digitalRead(sensorPin);
 
-  if (currentState != previousState) {
-
-    if (currentState == HIGH) {
-      tickCount++;
-      currentTickTime = millis();
-
-      deltaTime = currentTickTime - lastTickTime;
-      
-      if(deltaTime > 0)
-      {
-        rpm = 6000.0 / deltaTime; // Calculate RPM
-        
-      }
-      lastTickTime = currentTickTime;
-      
-      Serial.print("RPM: ");
-       // Convert to RPM
-      Serial.println(rpm);
-    }
-  }
-
-  previousState = currentState;
-
-  delay(1); // Adjust delay as needed
-
+    
 }
+
+

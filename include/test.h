@@ -1,5 +1,12 @@
 #include <Arduino.h>
 
+
+#define BR_SPEED 195
+#define BL_SPEED 255
+#define TL_SPEED 92
+#define TR_SPEED 80
+
+
 struct LED
 {
     int pin;
@@ -53,13 +60,13 @@ struct Ultrasonic
 };
 
 
-struct HBridge
+struct HBridgeMotor
 {
     int enPin;
     int in1Pin;
     int in2Pin;
 
-    HBridge(int en, int in1, int in2) : enPin(en), in1Pin(in1), in2Pin(in2) {
+    HBridgeMotor(int en, int in1, int in2) : enPin(en), in1Pin(in1), in2Pin(in2) {
         pinMode(enPin, OUTPUT);
         pinMode(in1Pin, OUTPUT);
         pinMode(in2Pin, OUTPUT);
@@ -108,3 +115,32 @@ struct Encoder
         // Needs to be implemented based on specific encoder type
     }
 };
+
+
+void DriveForward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.driveForward();
+    topRight.driveForward();
+    backLeft.driveForward();
+    backRight.driveForward();
+}
+
+void DriveBackward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.driveBackward();
+    topRight.driveBackward();
+    backLeft.driveBackward();
+    backRight.driveBackward();
+}
+
+void StrafeLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.driveBackward();
+    topRight.driveForward();
+    backLeft.driveForward();
+    backRight.driveBackward();
+}
+
+void StrafeRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.driveForward();
+    topRight.driveBackward();
+    backLeft.driveBackward();
+    backRight.driveForward();
+}
