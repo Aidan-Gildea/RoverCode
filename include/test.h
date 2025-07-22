@@ -1,10 +1,11 @@
 #include <Arduino.h>
 
+// arbitrary speed values for motors
 
-#define BR_SPEED 195
+#define BR_SPEED 185
 #define BL_SPEED 250
-#define TL_SPEED 85
-#define TR_SPEED 80
+#define TL_SPEED 115
+#define TR_SPEED 115
 
 
 struct LED
@@ -143,4 +144,11 @@ void StrafeRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& ba
     topRight.driveBackward();
     backLeft.driveBackward();
     backRight.driveForward();
+}
+
+void StopMotors(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.stop();
+    topRight.stop();
+    backLeft.stop();
+    backRight.stop();
 }

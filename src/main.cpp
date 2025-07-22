@@ -22,32 +22,45 @@
 #define in1_rightBack 49
 #define in2_rightBack 51
 
+// Ultrasonic sensors
+#define UFRONTLEFT_TRIGGER_PIN 43
+#define UFRONTLEFT_ECHO_PIN 42
+
+#define UFRONTRIGHT_TRIGGER_PIN 44
+#define UFRONTRIGHT_ECHO_PIN 45
+
+#define USIDELEFT_TRIGGER_PIN 46
+#define USIDELEFT_ECHO_PIN 47
+
+#define USIDERIGHT_TRIGGER_PIN 52
+#define USIDERIGHT_ECHO_PIN 53
+
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
 HBridgeMotor backLeft(enA_leftBack, in1_leftBack, in2_leftBack);
 HBridgeMotor backRight(enA_rightBack, in1_rightBack, in2_rightBack);
 
+
+Ultrasonic frontLeftUltrasonic(UFRONTLEFT_TRIGGER_PIN, UFRONTLEFT_ECHO_PIN);
+Ultrasonic frontRightUltrasonic(UFRONTRIGHT_TRIGGER_PIN, UFRONTRIGHT_ECHO_PIN);
+Ultrasonic sideLeftUltrasonic(USIDELEFT_TRIGGER_PIN, USIDELEFT_ECHO_PIN);
+Ultrasonic sideRightUltrasonic(USIDERIGHT_TRIGGER_PIN, USIDERIGHT_ECHO_PIN);
 void setup() 
 {
   backRight.setMotorSpeed(BR_SPEED); // 170 - 230
   backLeft.setMotorSpeed(BL_SPEED);
   topLeft.setMotorSpeed(TL_SPEED);
   topRight.setMotorSpeed(TR_SPEED);
-
-  DriveForward(topLeft, topRight, backLeft, backRight);
-  delay(5000);
-  StrafeLeft(topLeft, topRight, backLeft, backRight);
-  delay(5000);
-  StrafeRight(topLeft, topRight, backLeft, backRight);
-  delay(5000);
-  DriveForward(topLeft, topRight, backLeft, backRight);
+  
 }
 
 void loop()
 {
+  long distance = frontLeftUltrasonic.readDistance();
+  delay(100);
+}
 
     
-}
 
 
