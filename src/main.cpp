@@ -3,37 +3,37 @@
 
 
 // left front
-#define enA_leftFront 11
+#define enA_leftFront 2
 #define in2_leftFront 22
 #define in1_leftFront 23
 
 // right motor
-#define enA_leftBack 12
+#define enA_leftBack 3
 #define in1_leftBack 25
 #define in2_leftBack 24
 
 // right front
-#define enA_rightFront 10
-#define in1_rightFront 48
-#define in2_rightFront 50
+#define enA_rightFront 5
+#define in1_rightFront 25
+#define in2_rightFront 26
 
 //right back
-#define enA_rightBack 8
-#define in1_rightBack 49
-#define in2_rightBack 51
+#define enA_rightBack 4
+#define in1_rightBack 27
+#define in2_rightBack 28
 
 // Ultrasonic sensors
-#define UFRONTLEFT_TRIGGER_PIN 43
-#define UFRONTLEFT_ECHO_PIN 42
+#define UFRONTLEFT_TRIGGER_PIN 50
+#define UFRONTLEFT_ECHO_PIN 51
 
-#define UFRONTRIGHT_TRIGGER_PIN 44
-#define UFRONTRIGHT_ECHO_PIN 45
+#define UFRONTRIGHT_TRIGGER_PIN 48
+#define UFRONTRIGHT_ECHO_PIN 49
 
-#define USIDELEFT_TRIGGER_PIN 46
-#define USIDELEFT_ECHO_PIN 47
+#define USIDELEFT_TRIGGER_PIN 52
+#define USIDELEFT_ECHO_PIN 53
 
-#define USIDERIGHT_TRIGGER_PIN 52
-#define USIDERIGHT_ECHO_PIN 53
+#define USIDERIGHT_TRIGGER_PIN 46
+#define USIDERIGHT_ECHO_PIN 47
 
 #define MAZE_WIDTH 114 // Example width of the maze in cm
 #define ROBOT_WIDTH 26 // Example width of the robot in cm
@@ -59,15 +59,19 @@ bool conditionLR()
 
 void setup() 
 {
-  backRight.setMotorSpeed(BR_SPEED); // 170 - 230
-  backLeft.setMotorSpeed(BL_SPEED);
-  topLeft.setMotorSpeed(TL_SPEED);
-  topRight.setMotorSpeed(TR_SPEED);
+  // backRight.setMotorSpeed(BR_SPEED); // 170 - 230
+  // backLeft.setMotorSpeed(BL_SPEED);
+  // topLeft.setMotorSpeed(TL_SPEED);
+  // topRight.setMotorSpeed(TR_SPEED);
+  Serial.begin(9600);
   
 }
 
 void loop()
 {
+  Serial.println("FrontRight: " + String(frontRightUltrasonic.readDistance()) + " cm");
+  delay(1000); // Delay for readability
+
 
 }
 
