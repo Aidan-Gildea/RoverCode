@@ -36,6 +36,12 @@ void setup()
   topRight.setMotorSpeed(TR_SPEED);
 
   DriveForward(topLeft, topRight, backLeft, backRight);
+  delay(5000);
+  StrafeLeft(topLeft, topRight, backLeft, backRight);
+  delay(5000);
+  StrafeRight(topLeft, topRight, backLeft, backRight);
+  delay(5000);
+  DriveForward(topLeft, topRight, backLeft, backRight);
 }
 
 void loop()

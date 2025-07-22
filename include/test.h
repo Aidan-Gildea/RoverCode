@@ -2,8 +2,8 @@
 
 
 #define BR_SPEED 195
-#define BL_SPEED 255
-#define TL_SPEED 92
+#define BL_SPEED 250
+#define TL_SPEED 85
 #define TR_SPEED 80
 
 
