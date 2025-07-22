@@ -35,6 +35,9 @@
 #define USIDERIGHT_TRIGGER_PIN 52
 #define USIDERIGHT_ECHO_PIN 53
 
+#define MAZE_WIDTH 114 // Example width of the maze in cm
+#define ROBOT_WIDTH 26 // Example width of the robot in cm
+
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -46,6 +49,14 @@ Ultrasonic frontLeftUltrasonic(UFRONTLEFT_TRIGGER_PIN, UFRONTLEFT_ECHO_PIN);
 Ultrasonic frontRightUltrasonic(UFRONTRIGHT_TRIGGER_PIN, UFRONTRIGHT_ECHO_PIN);
 Ultrasonic sideLeftUltrasonic(USIDELEFT_TRIGGER_PIN, USIDELEFT_ECHO_PIN);
 Ultrasonic sideRightUltrasonic(USIDERIGHT_TRIGGER_PIN, USIDERIGHT_ECHO_PIN);
+
+bool conditionLR()
+{
+    long left = sideLeftUltrasonic.readDistance();
+    long right = sideRightUltrasonic.readDistance();
+    return (left + right) > (MAZE_WIDTH - ROBOT_WIDTH);
+}
+
 void setup() 
 {
   backRight.setMotorSpeed(BR_SPEED); // 170 - 230
@@ -57,8 +68,7 @@ void setup()
 
 void loop()
 {
-  long distance = frontLeftUltrasonic.readDistance();
-  delay(100);
+
 }
 
     
