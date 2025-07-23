@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <test.h>
+#include "Servo.h"
 
 // Motor pin definitions
 #define enA_leftFront 2
@@ -37,6 +38,9 @@
 #define TOO_CLOSE_THRESHOLD 15
 #define TOO_CLOSE_THRESHOLD_OFFSET 15
 
+#define FRONT_SERVO_PIN 7
+#define BACK_SERVO_PIN 8
+
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
 HBridgeMotor backLeft(enA_leftBack, in1_leftBack, in2_leftBack);
@@ -46,6 +50,9 @@ Ultrasonic frontLeftUltrasonic(UFRONTLEFT_TRIGGER_PIN, UFRONTLEFT_ECHO_PIN);
 Ultrasonic frontRightUltrasonic(UFRONTRIGHT_TRIGGER_PIN, UFRONTRIGHT_ECHO_PIN);
 Ultrasonic sideLeftUltrasonic(USIDELEFT_TRIGGER_PIN, USIDELEFT_ECHO_PIN);
 Ultrasonic sideRightUltrasonic(USIDERIGHT_TRIGGER_PIN, USIDERIGHT_ECHO_PIN);
+
+Servo frontServo; 
+Servo backServo; 
 
 // 判斷左右側總空間是否大於迷宮寬度 - 機器寬度
 bool conditionLR() {
@@ -100,6 +107,13 @@ void driveRightWhileCondition() {
   StopMotors(topLeft, topRight, backLeft, backRight);
 }
 
+void SetArmPosition(int angle)
+{
+  if(angle < 90 || angle > 180) return;
+  frontServo.write(angle);
+  backServo.write(angle);
+  delay(300); // Allow time for servo to reach position
+}
 void setup() {
   Serial.begin(9600);
 
@@ -109,6 +123,12 @@ void setup() {
   topRight.setMotorSpeed(TR_SPEED);
 
   StopMotors(topLeft, topRight, backLeft, backRight);
+
+  frontServo.attach(FRONT_SERVO_PIN);
+  backServo.attach(BACK_SERVO_PIN);
+
+  SetArmPosition(90); // Set initial position to 90 degrees
+
 }
 
 bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
@@ -122,12 +142,4 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 }
 
 void loop() {
-  driveForwardUntilFrontTooClose();
-  delay(500);
-  driveLeftWhileCondition();
-  delay(500);
-  driveForwardUntilFrontTooClose();
-  delay(500);
-  driveRightWhileCondition();
-  delay(500);
 }
