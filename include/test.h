@@ -47,16 +47,28 @@ struct Ultrasonic
 
     long readDistance() {
         // Trigger the ultrasonic sensor
-        digitalWrite(trigPin, HIGH);
-        delayMicroseconds(10);
-        digitalWrite(trigPin, LOW);
+        unsigned long distance = 0; 
+        for(int i = 0; i < 3; i++)
+        {
+            digitalWrite(trigPin, HIGH);
+            delayMicroseconds(10);
+            digitalWrite(trigPin, LOW);
+    
+            // Measure the duration of the echo
+            unsigned long duration = pulseIn(echoPin, HIGH);
 
-        // Measure the duration of the echo
-        unsigned long duration = pulseIn(echoPin, HIGH);
+            int newdist = ((duration * 0.034) / 2);
+            if (newdist > 400)
+            {
+                i--;
+                continue;
+            }
+            distance += newdist;
 
-        unsigned long distance = ((duration * 0.034) / 2);
 
-        return distance;
+
+        }
+        return distance / 3; // return the average distance in cm
     }
 };
 
