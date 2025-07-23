@@ -2,8 +2,8 @@
 
 // arbitrary speed values for motors
 
-#define BR_SPEED 185
-#define BL_SPEED 250
+#define BR_SPEED 255
+#define BL_SPEED 255
 #define TL_SPEED 115
 #define TR_SPEED 115
 

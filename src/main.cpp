@@ -14,12 +14,12 @@
 
 // right front
 #define enA_rightFront 5
-#define in1_rightFront 25
+#define in1_rightFront 27
 #define in2_rightFront 26
 
 //right back
 #define enA_rightBack 4
-#define in1_rightBack 27
+#define in1_rightBack 29
 #define in2_rightBack 28
 
 // Ultrasonic sensors
@@ -59,20 +59,16 @@ bool conditionLR()
 
 void setup() 
 {
-  // backRight.setMotorSpeed(BR_SPEED); // 170 - 230
-  // backLeft.setMotorSpeed(BL_SPEED);
-  // topLeft.setMotorSpeed(TL_SPEED);
-  // topRight.setMotorSpeed(TR_SPEED);
-  Serial.begin(9600);
+backLeft.setMotorSpeed(BL_SPEED);
+backRight.setMotorSpeed(BR_SPEED); // 170 - 230
+topLeft.setMotorSpeed(TL_SPEED);
+topRight.setMotorSpeed(TR_SPEED);
   
 }
 
 void loop()
 {
-  Serial.println("FrontRight: " + String(frontRightUltrasonic.readDistance()) + " cm");
-  delay(1000); // Delay for readability
-
-
+  StrafeLeft(topLeft, topRight, backLeft, backRight);
 }
 
     
