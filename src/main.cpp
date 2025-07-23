@@ -57,7 +57,7 @@ bool conditionLR() {
 }
 
 void driveForwardUntilFrontTooClose() {
-  while (frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD 
+  while (frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
          frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
          !conditionLR()) {
     DriveForward(topLeft, topRight, backLeft, backRight);
