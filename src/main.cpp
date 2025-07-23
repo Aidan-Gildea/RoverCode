@@ -35,6 +35,7 @@
 #define ROBOT_WIDTH 26
 
 #define TOO_CLOSE_THRESHOLD 15  // distance in cm
+#define TOO_CLOSE_THRESHOLD_OFFSET 3
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -66,30 +67,41 @@ void driveForwardUntilFrontTooClose() {
 
 void driveLeftUntilCondition() {
   while (sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-         sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD) {
+         frontRightUltrasonic.readDistance() < TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET) {
     StrafeLeft(topLeft, topRight, backLeft, backRight);
+  }
+  if(frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET) {
+    delay(1500);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
 }
 
 void driveRightUntilCondition() {
   while (sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-         sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD) {
+         frontLeftUltrasonic.readDistance() < TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET) {
     StrafeRight(topLeft, topRight, backLeft, backRight);
+  }
+  if(frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET) {
+    delay(1500);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
 }
 
 void setup() {
-  backLeft.setMotorSpeed(200);
-  backRight.setMotorSpeed(200);
-  topLeft.setMotorSpeed(200);
-  topRight.setMotorSpeed(200);
+  backLeft.setMotorSpeed(BL_SPEED);
+  backRight.setMotorSpeed(BR_SPEED);
+  topLeft.setMotorSpeed(TL_SPEED);
+  topRight.setMotorSpeed(TR_SPEED);
+  Serial.begin(9600);
 }
 
 void loop() {
-  driveForwardUntilFrontTooClose();
-  driveLeftUntilCondition();
-  driveForwardUntilFrontTooClose();
-  driveRightUntilCondition();
+ driveForwardUntilFrontTooClose();
+ delay(700);
+ driveLeftUntilCondition();
+  delay(700);
+ driveRightUntilCondition();
+  delay(700);
+ driveForwardUntilFrontTooClose();
+  delay(700);
 }
