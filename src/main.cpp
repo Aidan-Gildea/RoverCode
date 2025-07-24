@@ -81,7 +81,7 @@
 #define MAZE_TIME 14000 // 7 seconds
 
 
-#define STEPOVER_DELAY 300
+#define STEPOVER_DELAY 600
 
 
 #define TIMER_FLAG_PIN 35
@@ -95,6 +95,7 @@
 
 
 #define ANGLE_CORRECTION_THRESHOLD 2
+#define ROTATION_OFFSET 1.5
 
 
 
@@ -137,7 +138,7 @@ bool conditionLR() {
 void CorrectAngle()
 {
  mpu.update();
-float angleZ = mpu.getAngleZ();
+float angleZ = mpu.getAngleZ() + ((millis() / 1000) * ROTATION_OFFSET);
  while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
   Serial.println(angleZ);
    if(angleZ > 0) {
@@ -146,7 +147,7 @@ float angleZ = mpu.getAngleZ();
      SpinLeft(topLeft, topRight, backLeft, backRight);
    }
    mpu.update();
-   angleZ = mpu.getAngleZ();
+   angleZ = mpu.getAngleZ() + ((millis() / 1000) * ROTATION_OFFSET);
    Serial.println(angleZ);
    delay(5);
  }
