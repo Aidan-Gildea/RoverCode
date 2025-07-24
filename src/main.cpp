@@ -130,7 +130,7 @@ void setup() {
   frontServo.attach(FRONT_SERVO_PIN);
   backServo.attach(BACK_SERVO_PIN);
 
-  SetArmPosition(90); // Set initial position to 90 degrees
+  SetArmPosition(90); // Set initial position to 180 degrees
 
 }
 
@@ -145,4 +145,5 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 }
 
 void loop() {
+  
 }
