@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <Wire.h>
+#include <MPU6050_light.h>
 
 // arbitrary speed values for motors
 
@@ -158,3 +160,9 @@ void StopMotors(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& bac
     backLeft.stop();
     backRight.stop();
 }
+
+
+struct GyroScope
+{
+    
+};
