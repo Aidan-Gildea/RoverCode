@@ -27,10 +27,9 @@ void setup() {
 
 void loop() {
   float currentDistance = measureDistance();
-  Serial.print("Distance: ");
   Serial.print(currentDistance);
-  Serial.println(" cm");
-  if (abs(currentDistance - lastDistance) > threshold) {
+  
+  if (abs(currentDistance - lastDistance) < threshold) {
     stopMotors();
     delay(1000);
     moveForward();

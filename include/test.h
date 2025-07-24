@@ -4,7 +4,7 @@
 
 // arbitrary speed values for motors
 
-#define BR_SPEED 253
+#define BR_SPEED 255
 #define BL_SPEED 255
 #define TL_SPEED 122
 #define TR_SPEED 120
@@ -164,5 +164,28 @@ void StopMotors(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& bac
 
 struct GyroScope
 {
-    
+    MPU6050 mpu;
+
+    GyroScope() 
+    : mpu(Wire) {
+        Wire.begin();
+        mpu.begin();
+        mpu.calcOffsets(true, true);
+    }
+
+    void update() {
+        mpu.update();
+    }
+
+    float getZ() {
+        return mpu.getAngleZ();
+    }
+
+    float getX() {
+        return mpu.getAngleX();
+    }
+
+    float getY() {
+        return mpu.getAngleY();
+    }
 };
