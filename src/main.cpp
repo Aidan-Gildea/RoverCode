@@ -145,4 +145,12 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 }
 
 void loop() {
+  driveForwardUntilFrontTooClose();
+  delay(300);
+  driveLeftWhileCondition();
+  delay(300);
+  driveForwardUntilFrontTooClose();
+  delay(300);
+  driveRightWhileCondition();
+  delay(300);
 }
