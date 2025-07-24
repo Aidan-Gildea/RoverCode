@@ -54,7 +54,7 @@
 
 #define DELAY_TIME 300
 
-#define MAZE_TIME 7000 // 7 seconds
+#define MAZE_TIME 25000 // 7 seconds
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);

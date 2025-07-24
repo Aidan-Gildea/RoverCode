@@ -4,8 +4,8 @@
 
 #define BR_SPEED 255
 #define BL_SPEED 255
-#define TL_SPEED 115
-#define TR_SPEED 115
+#define TL_SPEED 120
+#define TR_SPEED 120
 
 // more changes !
 
