@@ -1,3 +1,4 @@
+#pragma once
 #include <Arduino.h>
 #include <Wire.h>
 #include <MPU6050_light.h>
@@ -161,13 +162,26 @@ void StopMotors(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& bac
     backRight.stop();
 }
 
+void SpinRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.driveForward();
+    topRight.driveBackward();
+    backLeft.driveForward();
+    backRight.driveBackward();
+}
+
+void SpinLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+    topLeft.driveBackward();
+    topRight.driveForward();
+    backLeft.driveBackward();
+    backRight.driveForward();
+}
 
 struct GyroScope
 {
     MPU6050 mpu;
 
-    GyroScope() 
-    : mpu(Wire) {
+    GyroScope() : mpu(Wire) 
+    {
         Wire.begin();
         mpu.begin();
         mpu.calcOffsets(true, true);

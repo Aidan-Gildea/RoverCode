@@ -27,27 +27,15 @@ void setup() {
 
 void loop() {
   float currentDistance = measureDistance();
-  Serial.print(currentDistance);
-  
   if (abs(currentDistance - lastDistance) < threshold) {
     stopMotors();
-    delay(1000);
+  } else {
     moveForward();
   }
   lastDistance = currentDistance;
   delay(200);
 }
 
-float measureDistance() {
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  float duration = pulseIn(echoPin, HIGH);
-  float distance = duration * 0.034 / 2;
-  return distance;
-}
 
 void moveForward() {
   digitalWrite(IN1, HIGH);
@@ -57,8 +45,18 @@ void moveForward() {
   digitalWrite(IN4, LOW);
   analogWrite(ENB, 150);
 }
-
 void stopMotors() {
   digitalWrite(ENA, LOW);
   digitalWrite(ENB, LOW);
+}
+
+float measureDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  float distance = duration * 0.034 / 2;
+  return distance;
 }
