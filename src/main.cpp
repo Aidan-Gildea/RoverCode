@@ -34,8 +34,8 @@
 #define MAZE_WIDTH 114
 #define ROBOT_WIDTH 26
 
-#define TOO_CLOSE_THRESHOLD 13
-#define TOO_CLOSE_THRESHOLD_OFFSET 13
+#define TOO_CLOSE_THRESHOLD 9
+#define TOO_CLOSE_THRESHOLD_OFFSET 9
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -79,7 +79,7 @@ void driveLeftWhileCondition() {
     delay(50);
   }
   if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
-    delay(500);
+    delay(300);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
 }
@@ -95,7 +95,7 @@ void driveRightWhileCondition() {
     delay(50);
   }
   if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
-    delay(500);
+    delay(300);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
 }
