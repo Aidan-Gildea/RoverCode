@@ -14,6 +14,8 @@
 
 
 // Motor pin definitions
+
+// i made a change 
 #define enA_leftFront 2
 #define in2_leftFront 22
 #define in1_leftFront 23
@@ -168,7 +170,7 @@ void setup() {
   frontServo.attach(FRONT_SERVO_PIN);
   backServo.attach(BACK_SERVO_PIN);
 
-  SetArmPosition(90); // Set initial position to 90 degrees
+  SetArmPosition(90); // Set initial position to 180 degrees
 
 }
 
