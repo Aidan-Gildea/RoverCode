@@ -34,8 +34,8 @@
 #define MAZE_WIDTH 114
 #define ROBOT_WIDTH 26
 
-#define TOO_CLOSE_THRESHOLD 15
-#define TOO_CLOSE_THRESHOLD_OFFSET 15
+#define TOO_CLOSE_THRESHOLD 13
+#define TOO_CLOSE_THRESHOLD_OFFSET 13
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -123,11 +123,11 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 
 void loop() {
   driveForwardUntilFrontTooClose();
-  delay(500);
+  delay(300);
   driveLeftWhileCondition();
-  delay(500);
+  delay(300);
   driveForwardUntilFrontTooClose();
-  delay(500);
+  delay(300);
   driveRightWhileCondition();
-  delay(500);
+  delay(300);
 }
