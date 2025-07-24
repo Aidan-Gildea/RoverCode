@@ -176,30 +176,4 @@ void SpinLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backL
     backRight.driveForward();
 }
 
-struct GyroScope
-{
-    MPU6050 mpu;
 
-    GyroScope() : mpu(Wire) 
-    {
-        Wire.begin();
-        mpu.begin();
-        mpu.calcOffsets(true, true);
-    }
-
-    void update() {
-        mpu.update();
-    }
-
-    float getZ() {
-        return mpu.getAngleZ();
-    }
-
-    float getX() {
-        return mpu.getAngleX();
-    }
-
-    float getY() {
-        return mpu.getAngleY();
-    }
-};

@@ -1,5 +1,7 @@
 #include <test.h>
 #include "Servo.h"
+#include <Wire.h>
+#include <MPU6050_light.h> 
 
 
 // hello
@@ -13,6 +15,9 @@
 
 // Get closer to right side by strafing right until certain distance is seen
 // implement gyroscope
+
+// note that I am struggling to implement a struct for the gyroscope
+
 
 
 
@@ -70,7 +75,7 @@
 #define BACK_SERVO_PIN 8
 
 
-#define DELAY_TIME 300
+#define DELAY_TIME 50
 
 
 #define MAZE_TIME 14000 // 7 seconds
@@ -89,7 +94,7 @@
 #define FRONT_DISTANCE_TO_STOP 66
 
 
-#define ANGLE_CORRECTION_THRESHOLD 1
+#define ANGLE_CORRECTION_THRESHOLD 2
 
 
 
@@ -113,8 +118,7 @@ Servo backServo;
 LED LR_FLAG_LED(LR_FLAG_PIN);
 LED TIMER_FLAG_LED(TIMER_FLAG_PIN);
 
-
-GyroScope gyro;
+MPU6050 mpu(Wire);
 
 
 // 判斷左右側總空間是否大於迷宮寬度 - 機器寬度
@@ -130,6 +134,24 @@ bool conditionLR() {
 }
 
 
+void CorrectAngle()
+{
+ mpu.update();
+float angleZ = mpu.getAngleZ();
+ while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
+  Serial.println(angleZ);
+   if(angleZ > 0) {
+     SpinRight(topLeft, topRight, backLeft, backRight);
+   } else {
+     SpinLeft(topLeft, topRight, backLeft, backRight);
+   }
+   mpu.update();
+   angleZ = mpu.getAngleZ();
+   Serial.println(angleZ);
+   delay(5);
+ }
+ StopMotors(topLeft, topRight, backLeft, backRight);
+}
 // 前進直到前方或左右側距離過近
 // drive forward works
 
@@ -141,6 +163,7 @@ bool driveForwardUntilFrontTooClose() {
  frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD)
  {
    firstCondition = true;
+   CorrectAngle();
    DriveForward(topLeft, topRight, backLeft, backRight);
    delay(50);
  }
@@ -149,86 +172,13 @@ bool driveForwardUntilFrontTooClose() {
 }
 // 向左平移直到右側過近或前右有空間
 
-
-//
-bool driveLeftWhileCondition() {
- bool firstCondition = false; 
- while (
-   (sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-   frontRightUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
- )
- {
-   firstCondition = true;
-   StrafeLeft(topLeft, topRight, backLeft, backRight);
-   delay(50); // to prevent junk values on ultrasonic sensors
- }
- if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
-   delay(STEPOVER_DELAY);
- }
- StopMotors(topLeft, topRight, backLeft, backRight);
- return firstCondition;
-}
-
-
-// 向右平移直到左側過近或前左有空間
-bool driveRightWhileCondition() {
- bool firstCondition = false;
- while (
-   (sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-   frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
- ) {
-   firstCondition = true;
-   StrafeRight(topLeft, topRight, backLeft, backRight);
-   delay(50);
- }
- if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
-   delay(STEPOVER_DELAY);
- }
- StopMotors(topLeft, topRight, backLeft, backRight);
- return firstCondition;
-}
-
-
-void conditionLPlusR() {
- while (conditionLR() && (sideRightUltrasonic.readDistance() > 56)) {
-   StrafeRight(topLeft, topRight, backLeft, backRight);
-   delay(500); // Allow some time to move forward
-   if (sideRightUltrasonic.readDistance() > 40) {
-     driveForwardUntilFrontTooClose();
-     delay(500); // Allow some time to stop
-     while (sideRightUltrasonic.readDistance()<40 && sideRightUltrasonic.readDistance() > 5) {
-       StrafeRight(topLeft, topRight, backLeft, backRight);
-     }
-     break;
-   }
-
-void SetArmPosition(int angle)
-{
- if(angle < 90 || angle > 180) return;
- frontServo.write(angle);
- backServo.write(angle);
- delay(300); // Allow time for servo to reach position
-}
-
-
-
-
-void CorrectAngle()
-{
- gyro.update();
- while(gyro.getZ() > ANGLE_CORRECTION_THRESHOLD || gyro.getZ() < -ANGLE_CORRECTION_THRESHOLD) {
-   if(gyro.getZ() > 0) {
-     SpinLeft(topLeft, topRight, backLeft, backRight);
-   } else {
-     SpinRight(topLeft, topRight, backLeft, backRight);
-   }
-   gyro.update();
-   delay(10);
- }
-}
 void setup() {
  Serial.begin(9600);
+ Wire.begin();
 
+ delay(1000);
+ mpu.begin();
+ mpu.calcOffsets(true,true);
 
  backLeft.setMotorSpeed(BL_SPEED);
  backRight.setMotorSpeed(BR_SPEED);
@@ -243,10 +193,92 @@ void setup() {
  backServo.attach(BACK_SERVO_PIN);
 
 
- SetArmPosition(90); // Set initial position to 180 degrees
+ // SetArmPosition(90); // Set initial position to 180 degrees
+
+
 
 
 }
+
+//
+bool driveLeftWhileCondition() {
+ bool firstCondition = false; 
+ while (
+   (sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
+   frontRightUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
+ )
+ {
+    CorrectAngle();
+   firstCondition = true;
+   StrafeLeft(topLeft, topRight, backLeft, backRight);
+   delay(50); // to prevent junk values on ultrasonic sensors
+ }
+ if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
+   delay(STEPOVER_DELAY);
+ }
+ StopMotors(topLeft, topRight, backLeft, backRight);
+ return firstCondition;
+}
+
+void SetArmPosition(int angle)
+{
+ if(angle < 90 || angle > 180) return;
+ frontServo.write(angle);
+ backServo.write(angle);
+ delay(300); // Allow time for servo to reach position
+}
+
+
+// 向右平移直到左側過近或前左有空間
+bool driveRightWhileCondition() {
+ bool firstCondition = false; 
+ while (
+   (sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
+   frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
+ ) {
+   firstCondition = true;
+   CorrectAngle();
+   StrafeRight(topLeft, topRight, backLeft, backRight);
+   delay(50);
+ }  
+ if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
+   delay(STEPOVER_DELAY);
+ }  
+ StopMotors(topLeft, topRight, backLeft, backRight);
+ return firstCondition;
+} 
+
+
+void conditionLPlusR() {
+  while (conditionLR()) {
+    long sideRightDistance = sideRightUltrasonic.readDistance();
+
+    if (sideRightDistance > RIGHT_DISTANCE_TO_STOP) {
+      StrafeRight(topLeft, topRight, backLeft, backRight);
+      delay(500);  // Allow time to move right
+    }   
+    else if (sideRightDistance <= RIGHT_DISTANCE_TO_STOP && sideRightDistance > 40) {
+      driveForwardUntilFrontTooClose();
+      delay(500);  // Allow stabilization after moving forward      
+    } 
+    else if (sideRightDistance <= 40 && sideRightDistance > 5) {
+      StopMotors(topLeft, topRight, backLeft, backRight);
+      delay(500);  // Pause momentarily
+      StrafeRight(topLeft, topRight, backLeft, backRight);
+      delay(500);  // Adjust to the correct position
+    }
+    else {
+      // Too close, stop completely to prevent collision.
+      StopMotors(topLeft, topRight, backLeft, backRight);
+      break; // Exit loop to avoid infinite loop.
+    }
+  }
+}
+
+
+
+
+
 
 
 bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
@@ -263,13 +295,13 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 
 
 void loop() {
-//  if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-//  if(driveLeftWhileCondition()) delay(DELAY_TIME);
-//  CorrectAngle();
-//  if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-//  if(driveRightWhileCondition()) delay(DELAY_TIME);
-//  CorrectAngle();
+  if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+  if(driveLeftWhileCondition()) delay(DELAY_TIME);
+  if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+  if(driveRightWhileCondition()) delay(DELAY_TIME);
 }
+
+
 
 
 
