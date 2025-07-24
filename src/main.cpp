@@ -4,6 +4,14 @@
 
 // hello
 
+// todo: 
+// Make maze navigation faster --done
+// Fill out condition L+R, The distance is 180 --done
+// Only activate L+R after a certain amount of time. --done
+
+// Get closer to right side by strafing right until certain distance is seen
+// implement gyroscope
+
 
 // Motor pin definitions
 #define enA_leftFront 2
@@ -35,14 +43,25 @@
 #define USIDERIGHT_TRIGGER_PIN 46
 #define USIDERIGHT_ECHO_PIN 47
 
-#define MAZE_WIDTH 114
-#define ROBOT_WIDTH 26
+#define MAZE_WIDTH 185
+#define ROBOT_WIDTH 20
 
-#define TOO_CLOSE_THRESHOLD 15
-#define TOO_CLOSE_THRESHOLD_OFFSET 15
+#define TOO_CLOSE_THRESHOLD 12
+#define TOO_CLOSE_THRESHOLD_OFFSET 12
 
 #define FRONT_SERVO_PIN 7
 #define BACK_SERVO_PIN 8
+
+#define DELAY_TIME 300
+
+#define MAZE_TIME 14000 // 7 seconds
+
+#define STEPOVER_DELAY 300
+
+#define TIMER_FLAG_PIN 35
+#define LR_FLAG_PIN 34
+
+#define LR_OFFSET 20
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -57,58 +76,77 @@ Ultrasonic sideRightUltrasonic(USIDERIGHT_TRIGGER_PIN, USIDERIGHT_ECHO_PIN);
 Servo frontServo; 
 Servo backServo; 
 
+LED LR_FLAG_LED(LR_FLAG_PIN);
+LED TIMER_FLAG_LED(TIMER_FLAG_PIN);
+
 // 判斷左右側總空間是否大於迷宮寬度 - 機器寬度
 bool conditionLR() {
+  if(millis() < MAZE_TIME) return false; // Only check after MAZE_TIME has passed
+  TIMER_FLAG_LED.on();
+  LR_FLAG_LED.on();
   long left = sideLeftUltrasonic.readDistance();
   long right = sideRightUltrasonic.readDistance();
-  return (left + right) > (MAZE_WIDTH - ROBOT_WIDTH);
+  bool success= (left + right) > (MAZE_WIDTH - ROBOT_WIDTH-LR_OFFSET);
+  if(success) LR_FLAG_LED.on();
+  return success;
 }
 
 // 前進直到前方或左右側距離過近
 // drive forward works
 
-void driveForwardUntilFrontTooClose() {
+bool driveForwardUntilFrontTooClose() {
+  bool firstCondition = false;  
   while (
   (frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD) &&
   frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD)
   {
+    firstCondition = true;
     DriveForward(topLeft, topRight, backLeft, backRight);
     delay(50);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
+  return firstCondition;
 }
 // 向左平移直到右側過近或前右有空間
 
 // 
-void driveLeftWhileCondition() {
+bool driveLeftWhileCondition() {
+  bool firstCondition = false;  
   while (
-    sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-    frontRightUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)
-  ) {
+    (sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
+    frontRightUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
+  ) 
+  {
+    firstCondition = true;
     StrafeLeft(topLeft, topRight, backLeft, backRight);
-    delay(50);
+    delay(50); // to prevent junk values on ultrasonic sensors
   }
   if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
-    delay(500);
+    delay(STEPOVER_DELAY);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
+  return firstCondition;
 }
 
 // 向右平移直到左側過近或前左有空間
-void driveRightWhileCondition() {
+bool driveRightWhileCondition() {
+  bool firstCondition = false;
   while (
-    sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-    frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)
-  ) 
-  {
+    (sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
+    frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
+  ) {
+    firstCondition = true;
     StrafeRight(topLeft, topRight, backLeft, backRight);
     delay(50);
   }
   if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
-    delay(500);
+    delay(STEPOVER_DELAY);
   }
   StopMotors(topLeft, topRight, backLeft, backRight);
+  return firstCondition;
 }
+
+
 
 void SetArmPosition(int angle)
 {
@@ -145,5 +183,8 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 }
 
 void loop() {
-  
+  if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+  if(driveLeftWhileCondition()) delay(DELAY_TIME);
+  if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+  if(driveRightWhileCondition()) delay(DELAY_TIME);
 }
