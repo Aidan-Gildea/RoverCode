@@ -74,7 +74,7 @@
 #define DELAY_TIME 50
 
 
-#define MAZE_TIME 12000 // 7 seconds
+#define MAZE_TIME 0 // 7 seconds
 
 
 #define STEPOVER_DELAY 200
@@ -85,15 +85,20 @@
 
 
 #define LR_OFFSET 20
-#define RIGHT_DISTANCE_TO_STOP 20
-#define LEFT_DISTANCE_TO_STOP 4
-#define FRONT_DISTANCE_TO_STOP 20
+#define RIGHT_DISTANCE_TO_STOP 42
+#define LEFT_DISTANCE_TO_STOP 25
+#define FRONT_DISTANCE_TO_STOP 35
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
 
 
+#define STOP_AND_GRAB_DISTANCE 10
+#define WAIT_TIME 300
 
+#define OBJECT_DISTANCE (RIGHT_DISTANCE_TO_STOP-16) // where 2 is the offset
+
+#define CLOSE_OBJECT 20
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -145,6 +150,7 @@ bool conditionLR() {
   {
     LR_FLAG_LED.on();
     currentState = OBJECTDETECTION;
+    delay(300);
   }
   return success;
 }
@@ -184,9 +190,6 @@ bool driveForwardUntilFrontTooClose() {
    firstCondition = true;
    //CorrectAngle();
    DriveForward(topLeft, topRight, backLeft, backRight);
-    mpu.update();
-    Serial.println( mpu.getAngleZ());
-   delay(50);
  }
  StopMotors(topLeft, topRight, backLeft, backRight);
  return firstCondition;
@@ -205,10 +208,7 @@ bool driveLeftWhileCondition() {
    //CorrectAngle();
    firstCondition = true;
    StrafeLeft(topLeft, topRight, backLeft, backRight);
-   delay(50); // to prevent junk values on ultrasonic sensors
-    mpu.update();
-    Serial.println( mpu.getAngleZ());
-  }
+ }
   if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
     delay(STEPOVER_DELAY);
  }
@@ -228,9 +228,6 @@ bool driveRightWhileCondition() {
     firstCondition = true;
     //CorrectAngle();
     StrafeRight(topLeft, topRight, backLeft, backRight);
-    mpu.update();
-    Serial.println( mpu.getAngleZ());
-    delay(50);
   }  
   if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
     delay(STEPOVER_DELAY);
@@ -262,8 +259,7 @@ void setup() {
 
 
  // SetArmPosition(90); // Set initial position to 180 degrees
-
- CorrectAngle();
+ driveForwardUntilFrontTooClose();
 
 }
 
@@ -308,15 +304,23 @@ void loop() {
     else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
     {
       DriveForward(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < 45) // 45 is an arbitrary value to say that the thing is detected
+      if(sideRightDistance < OBJECT_DISTANCE) // 45 is an arbitrary value to say that the thing is detected
       {
-        objdState = PAUSEANDGRABOBJECT;
+        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+        if(sideRightDistance >= CLOSE_OBJECT)
+        {
+          DriveBackward(topLeft, topRight, backLeft, backRight);
+  
+          delay(400);
+          StopMotors(topLeft, topRight, backLeft, backRight);
+
+        }
       }
     }
     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
     {
       StrafeRight(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < 15) // arbitrary value to stay that the object is close
+      if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
       {
         objdState = PAUSEANDGRABOBJECT;
       }
@@ -324,7 +328,7 @@ void loop() {
     else if(objdState == PAUSEANDGRABOBJECT)
     {
       StopMotors(topLeft, topRight, backLeft, backRight);
-      delay(300);
+
       SetArmPosition(180); // Grab the object
       delay(300);
       objdState = STRAFELEFTUNTILLEFTDISTANCE;
@@ -342,6 +346,7 @@ void loop() {
       {
         while(frontDistance > FRONT_DISTANCE_TO_STOP)
         {
+          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveForward(topLeft, topRight, backLeft, backRight);
         }
         objdState = DETECTFRONTSENSORUNTILDISTANCE;
@@ -351,9 +356,11 @@ void loop() {
       {
         while(frontDistance < FRONT_DISTANCE_TO_STOP)
         {
+          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveBackward(topLeft, topRight, backLeft, backRight);
         }
-
+        objdState = DETECTFRONTSENSORUNTILDISTANCE;
+        return;
       }
       objdState = RELEASEOBJECT;
     }
@@ -365,6 +372,7 @@ void loop() {
       delay(300);
       objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
     }
+    delay(100);
   }
   else if(currentState == DONE) 
   {

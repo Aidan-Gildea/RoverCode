@@ -10,6 +10,8 @@
 #define TL_SPEED 126
 #define TR_SPEED 132
 
+#define ULTRASONIC_MINIMUM_DISTANCE 3 
+
 // more changes !
 
 
@@ -65,8 +67,14 @@ struct Ultrasonic
 
         // Calculate the distance in centimeters
         distance += duration * 0.034 / 2;
+
+        Serial.println(distance);
+        if(distance < ULTRASONIC_MINIMUM_DISTANCE)
+        {
+            return readDistance();
+        }
             
-        delay(50);
+        delay(100);
         return distance; // return the average distance in cm
     }
 };
