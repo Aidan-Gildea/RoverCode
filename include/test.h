@@ -5,10 +5,10 @@
 
 // arbitrary speed values for motors
 
-#define BR_SPEED 255
+#define BR_SPEED 250
 #define BL_SPEED 255
-#define TL_SPEED 122
-#define TR_SPEED 120
+#define TL_SPEED 126
+#define TR_SPEED 132
 
 // more changes !
 
@@ -51,7 +51,7 @@ struct Ultrasonic
     }
 
     long readDistance() {
-        // Trigger the ultrasonic sensor
+        unsigned long distance = 0;
         digitalWrite(trigPin, LOW);
         delayMicroseconds(2);
 
@@ -61,10 +61,12 @@ struct Ultrasonic
         digitalWrite(trigPin, LOW);
 
         // Read the echoPin and calculate the duration
-        unsigned long duration = pulseIn(echoPin, HIGH, 25000);
+        unsigned long duration = pulseIn(echoPin, HIGH);
 
         // Calculate the distance in centimeters
-        unsigned long distance = duration * 0.034 / 2;
+        distance += duration * 0.034 / 2;
+            
+        delay(50);
         return distance; // return the average distance in cm
     }
 };
@@ -177,3 +179,14 @@ void SpinLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backL
 }
 
 
+bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
+
+
+ long distance = sensor.readDistance();
+ if(distance < flagDistance) {
+   return true;
+ }
+ return false;
+
+
+}
