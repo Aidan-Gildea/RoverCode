@@ -55,7 +55,7 @@
 #define USIDELEFT_ECHO_PIN 41
 
 
-#define USIDERIGHT_TRIGGER_PIN 46
+#define USIDERIGHT_TRIGGER_PIN 65
 #define USIDERIGHT_ECHO_PIN 47
 
 
@@ -85,7 +85,7 @@
 
 
 #define LR_OFFSET 20
-#define RIGHT_DISTANCE_TO_STOP 42
+#define RIGHT_DISTANCE_TO_STOP 47
 #define LEFT_DISTANCE_TO_STOP 25
 #define FRONT_DISTANCE_TO_STOP 35
 
@@ -96,9 +96,11 @@
 #define STOP_AND_GRAB_DISTANCE 10
 #define WAIT_TIME 300
 
-#define OBJECT_DISTANCE (RIGHT_DISTANCE_TO_STOP-16) // where 2 is the offset
+#define OBJECT_DISTANCE (RIGHT_DISTANCE_TO_STOP-25) // where 2 is the offset
 
-#define CLOSE_OBJECT 20
+#define CLOSE_OBJECT 10
+
+#define BACKWARD_TIME 300
 
 HBridgeMotor topLeft(enA_leftFront, in1_leftFront, in2_leftFront);
 HBridgeMotor topRight(enA_rightFront, in1_rightFront, in2_rightFront);
@@ -151,6 +153,9 @@ bool conditionLR() {
     LR_FLAG_LED.on();
     currentState = OBJECTDETECTION;
     delay(300);
+    DriveBackward(topLeft, topRight, backLeft, backRight);
+    delay(400);
+    StopMotors(topLeft, topRight, backLeft, backRight);
   }
   return success;
 }
@@ -278,6 +283,7 @@ enum OBJDState
 
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
+int count = 0; 
 void loop() {
   // Serial.println(mpu.getAngleZ());
   // CorrectAngle();
@@ -297,28 +303,42 @@ void loop() {
     if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
     {
       StrafeRight(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < RIGHT_DISTANCE_TO_STOP) {
+      if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
+        StopMotors(topLeft, topRight, backLeft, backRight);
         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
+      }
+      else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
+      {
+        count++;
+      }
+      else
+      {
+        count = 0; 
       }
     }
     else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
     {
-      DriveForward(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < OBJECT_DISTANCE) // 45 is an arbitrary value to say that the thing is detected
+      if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
       {
+        StopMotors(topLeft, topRight, backLeft, backRight);
         objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
-        if(sideRightDistance >= CLOSE_OBJECT)
-        {
-          DriveBackward(topLeft, topRight, backLeft, backRight);
-  
-          delay(400);
-          StopMotors(topLeft, topRight, backLeft, backRight);
 
-        }
+        DriveBackward(topLeft, topRight, backLeft, backRight);
+        
+        delay(BACKWARD_TIME);
+        StopMotors(topLeft, topRight, backLeft, backRight);
+          
+        
       }
+      else
+      {
+        DriveForward(topLeft, topRight, backLeft, backRight);
+      }
+      
     }
     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
     {
+      StopMotors(topLeft, topRight, backLeft, backRight);
       StrafeRight(topLeft, topRight, backLeft, backRight);
       if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
       {
@@ -372,7 +392,6 @@ void loop() {
       delay(300);
       objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
     }
-    delay(100);
   }
   else if(currentState == DONE) 
   {
