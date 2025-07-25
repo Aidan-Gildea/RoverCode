@@ -138,8 +138,6 @@ void SetArmPosition(int angle)
 bool conditionLR() {
   long left = sideLeftUltrasonic.readDistance();
   long right = sideRightUltrasonic.readDistance();
-  Serial.println("LR");
-  Serial.println(left + right);
   if(millis() < MAZE_TIME) return false; // Only check after MAZE_TIME has passed
   TIMER_FLAG_LED.on();
   bool success= (left + right) > (MAZE_WIDTH - ROBOT_WIDTH-LR_OFFSET);
@@ -161,12 +159,10 @@ void CorrectAngle()
      SpinRight(topLeft, topRight, backLeft, backRight);
      mpu.update();
     angleZ = mpu.getAngleZ();
-    Serial.println(angleZ);
    } else {
      SpinLeft(topLeft, topRight, backLeft, backRight);
      mpu.update();
      angleZ = mpu.getAngleZ();
-    Serial.println(angleZ);
 
    }
    mpu.update();
@@ -188,6 +184,8 @@ bool driveForwardUntilFrontTooClose() {
    firstCondition = true;
    //CorrectAngle();
    DriveForward(topLeft, topRight, backLeft, backRight);
+    mpu.update();
+    Serial.println( mpu.getAngleZ());
    delay(50);
  }
  StopMotors(topLeft, topRight, backLeft, backRight);
@@ -208,6 +206,8 @@ bool driveLeftWhileCondition() {
    firstCondition = true;
    StrafeLeft(topLeft, topRight, backLeft, backRight);
    delay(50); // to prevent junk values on ultrasonic sensors
+    mpu.update();
+    Serial.println( mpu.getAngleZ());
   }
   if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
     delay(STEPOVER_DELAY);
@@ -228,6 +228,8 @@ bool driveRightWhileCondition() {
     firstCondition = true;
     //CorrectAngle();
     StrafeRight(topLeft, topRight, backLeft, backRight);
+    mpu.update();
+    Serial.println( mpu.getAngleZ());
     delay(50);
   }  
   if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
