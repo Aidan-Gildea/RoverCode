@@ -85,9 +85,9 @@
 
 
 #define LR_OFFSET 20
-#define RIGHT_DISTANCE_TO_STOP 56
+#define RIGHT_DISTANCE_TO_STOP 20
 #define LEFT_DISTANCE_TO_STOP 4
-#define FRONT_DISTANCE_TO_STOP 66
+#define FRONT_DISTANCE_TO_STOP 20
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
@@ -123,7 +123,7 @@ enum CurrentState
   DONE
 };
 
-CurrentState currentState = MAZENAVIGATION;
+CurrentState currentState = OBJECTDETECTION;
 
 void SetArmPosition(int angle)
 {
@@ -263,6 +263,8 @@ void setup() {
 
  // SetArmPosition(90); // Set initial position to 180 degrees
 
+ CorrectAngle();
+
 }
 
 
@@ -284,17 +286,15 @@ void loop() {
   // Serial.println(mpu.getAngleZ());
   // CorrectAngle();
 
-  if(currentState == MAZENAVIGATION) 
+  // if(currentState == MAZENAVIGATION) 
+  // {
+  //   if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+  //   if(driveLeftWhileCondition()) delay(DELAY_TIME);
+  //   if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+  //   if(driveRightWhileCondition()) delay(DELAY_TIME);
+  // }
+  if(currentState == OBJECTDETECTION) 
   {
-    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-    if(driveLeftWhileCondition()) delay(DELAY_TIME);
-    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-    if(driveRightWhileCondition()) delay(DELAY_TIME);
-  }
-  else if(currentState == OBJECTDETECTION) 
-  {
-    CorrectAngle();
-    delay(10000);
     long sideRightDistance = sideRightUltrasonic.readDistance();
     long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
 
