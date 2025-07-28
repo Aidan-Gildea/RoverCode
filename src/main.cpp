@@ -137,7 +137,7 @@ void SetArmPosition(int angle)
 {
   if(angle < 90 || angle > 180) return;
   frontServo.write(angle);
-  backServo.write(180-angle);
+  backServo.write(angle);
   delay(300); // Allow time for servo to reach position
 }
 
@@ -296,6 +296,10 @@ enum OBJDState
 
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
+// void loop()
+// {
+//   StrafeRight(topLeft, topRight, backLeft, backRight);
+// }
 
 int count = 0; 
 void loop() {
