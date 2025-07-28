@@ -74,7 +74,7 @@
 #define DELAY_TIME 50
 
 
-#define MAZE_TIME 12000 // 7 seconds
+#define MAZE_TIME 14000 // 7 seconds
 
 
 #define STEPOVER_DELAY 200
@@ -92,6 +92,14 @@
 
 #define ANGLE_CORRECTION_THRESHOLD 6
 
+#define STOP_AND_GRAB_DISTANCE 10
+#define WAIT_TIME 300
+
+#define OBJECT_DISTANCE (RIGHT_DISTANCE_TO_STOP-25) // where 2 is the offset
+
+#define CLOSE_OBJECT 10
+
+#define BACKWARD_TIME 300
 
 
 
@@ -145,33 +153,36 @@ bool conditionLR() {
   {
     LR_FLAG_LED.on();
     currentState = OBJECTDETECTION;
+    delay(300);
+    DriveBackward(topLeft, topRight, backLeft, backRight);
+    delay(400);
+    StopMotors(topLeft, topRight, backLeft, backRight);
   }
   return success;
 }
 
+// void CorrectAngle()
+// {
+//  mpu.update();
+//  float angleZ = mpu.getAngleZ();
+//  while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
+//    if(angleZ > 0) {
+//      SpinRight(topLeft, topRight, backLeft, backRight);
+//      mpu.update();
+//     angleZ = mpu.getAngleZ();
+//    } else {
+//      SpinLeft(topLeft, topRight, backLeft, backRight);
+//      mpu.update();
+//      angleZ = mpu.getAngleZ();
 
-void CorrectAngle()
-{
- mpu.update();
- float angleZ = mpu.getAngleZ();
- while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
-   if(angleZ > 0) {
-     SpinRight(topLeft, topRight, backLeft, backRight);
-     mpu.update();
-    angleZ = mpu.getAngleZ();
-   } else {
-     SpinLeft(topLeft, topRight, backLeft, backRight);
-     mpu.update();
-     angleZ = mpu.getAngleZ();
-
-   }
-   mpu.update();
-   angleZ = mpu.getAngleZ();
- }
- StopMotors(topLeft, topRight, backLeft, backRight);
-}
-// 前進直到前方或左右側距離過近
-// drive forward works
+//    }
+//    mpu.update();
+//    angleZ = mpu.getAngleZ();
+//  }
+//  StopMotors(topLeft, topRight, backLeft, backRight);
+// }
+// // 前進直到前方或左右側距離過近
+// // drive forward works
 
 
 bool driveForwardUntilFrontTooClose() {
@@ -245,8 +256,8 @@ void setup() {
 //  Wire.begin();
 
  delay(1000);
- mpu.begin();
- mpu.calcOffsets(true,true);
+//  mpu.begin();
+//  mpu.calcOffsets(true,true);
 
  backLeft.setMotorSpeed(BL_SPEED);
  backRight.setMotorSpeed(BR_SPEED);
@@ -261,7 +272,7 @@ void setup() {
  backServo.attach(BACK_SERVO_PIN);
 
 
- // SetArmPosition(90); // Set initial position to 180 degrees
+ SetArmPosition(90); // Set initial position to 180 degrees
 
 }
 
@@ -280,9 +291,8 @@ enum OBJDState
 
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
+int count = 0; 
 void loop() {
-  // Serial.println(mpu.getAngleZ());
-  // CorrectAngle();
 
   if(currentState == MAZENAVIGATION) 
   {
@@ -293,30 +303,50 @@ void loop() {
   }
   else if(currentState == OBJECTDETECTION) 
   {
-    CorrectAngle();
-    delay(10000);
     long sideRightDistance = sideRightUltrasonic.readDistance();
     long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
 
     if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
     {
       StrafeRight(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < RIGHT_DISTANCE_TO_STOP) {
+      if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
+        StopMotors(topLeft, topRight, backLeft, backRight);
         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
+      }
+      else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
+      {
+        count++;
+      }
+      else
+      {
+        count = 0; 
       }
     }
     else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
     {
-      DriveForward(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < 45) // 45 is an arbitrary value to say that the thing is detected
+      if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
       {
-        objdState = PAUSEANDGRABOBJECT;
+        StopMotors(topLeft, topRight, backLeft, backRight);
+        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+
+        DriveBackward(topLeft, topRight, backLeft, backRight);
+        
+        delay(BACKWARD_TIME);
+        StopMotors(topLeft, topRight, backLeft, backRight);
+          
+        
       }
+      else
+      {
+        DriveForward(topLeft, topRight, backLeft, backRight);
+      }
+      
     }
     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
     {
+      StopMotors(topLeft, topRight, backLeft, backRight);
       StrafeRight(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < 15) // arbitrary value to stay that the object is close
+      if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
       {
         objdState = PAUSEANDGRABOBJECT;
       }
@@ -324,7 +354,7 @@ void loop() {
     else if(objdState == PAUSEANDGRABOBJECT)
     {
       StopMotors(topLeft, topRight, backLeft, backRight);
-      delay(300);
+
       SetArmPosition(180); // Grab the object
       delay(300);
       objdState = STRAFELEFTUNTILLEFTDISTANCE;
@@ -342,6 +372,7 @@ void loop() {
       {
         while(frontDistance > FRONT_DISTANCE_TO_STOP)
         {
+          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveForward(topLeft, topRight, backLeft, backRight);
         }
         objdState = DETECTFRONTSENSORUNTILDISTANCE;
@@ -351,9 +382,11 @@ void loop() {
       {
         while(frontDistance < FRONT_DISTANCE_TO_STOP)
         {
+          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveBackward(topLeft, topRight, backLeft, backRight);
         }
-
+        objdState = DETECTFRONTSENSORUNTILDISTANCE;
+        return;
       }
       objdState = RELEASEOBJECT;
     }
@@ -375,7 +408,6 @@ void loop() {
     SpinRight(topLeft, topRight, backLeft, backRight);
     delay(300); // Rotate for 1 second
   }
-  Serial.println(sideLeftUltrasonic.readDistance() + sideRightUltrasonic.readDistance() > 110);
 }
   
 
