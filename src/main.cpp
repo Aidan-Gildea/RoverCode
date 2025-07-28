@@ -55,9 +55,8 @@
 #define USIDELEFT_ECHO_PIN 41
 
 
-#define USIDERIGHT_TRIGGER_PIN 65
+#define USIDERIGHT_TRIGGER_PIN 46
 #define USIDERIGHT_ECHO_PIN 47
-
 
 #define MAZE_WIDTH 140
 #define ROBOT_WIDTH 20
@@ -74,7 +73,7 @@
 #define DELAY_TIME 50
 
 
-#define MAZE_TIME 0 // 7 seconds
+#define MAZE_TIME 10 // 7 seconds
 
 
 #define STEPOVER_DELAY 200
@@ -121,7 +120,7 @@ Servo backServo;
 LED LR_FLAG_LED(LR_FLAG_PIN);
 LED TIMER_FLAG_LED(TIMER_FLAG_PIN);
 
-MPU6050 mpu(Wire);
+//MPU6050 mpu(Wire);
 
 enum CurrentState
 {
@@ -161,28 +160,28 @@ bool conditionLR() {
 }
 
 
-void CorrectAngle()
-{
- mpu.update();
- float angleZ = mpu.getAngleZ();
- while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
-   if(angleZ > 0) {
-     SpinRight(topLeft, topRight, backLeft, backRight);
-     mpu.update();
-    angleZ = mpu.getAngleZ();
-   } else {
-     SpinLeft(topLeft, topRight, backLeft, backRight);
-     mpu.update();
-     angleZ = mpu.getAngleZ();
+// void CorrectAngle()
+// {
+//  mpu.update();
+//  float angleZ = mpu.getAngleZ();
+//  while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
+//    if(angleZ > 0) {
+//      SpinRight(topLeft, topRight, backLeft, backRight);
+//      mpu.update();
+//     angleZ = mpu.getAngleZ();
+//    } else {
+//      SpinLeft(topLeft, topRight, backLeft, backRight);
+//      mpu.update();
+//      angleZ = mpu.getAngleZ();
 
-   }
-   mpu.update();
-   angleZ = mpu.getAngleZ();
- }
- StopMotors(topLeft, topRight, backLeft, backRight);
-}
-// 前進直到前方或左右側距離過近
-// drive forward works
+//    }
+//    mpu.update();
+//    angleZ = mpu.getAngleZ()
+//  }
+//  StopMotors(topLeft, topRight, backLeft, backRight);
+// }
+// // 前進直到前方或左右側距離過近
+// // drive forward works
 
 
 bool driveForwardUntilFrontTooClose() {
@@ -192,6 +191,8 @@ bool driveForwardUntilFrontTooClose() {
  frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD && !conditionLR()
  )
  {
+    TIMER_FLAG_LED.on();
+
    firstCondition = true;
    //CorrectAngle();
    DriveForward(topLeft, topRight, backLeft, backRight);
@@ -247,8 +248,8 @@ void setup() {
 //  Wire.begin();
 
  delay(1000);
- mpu.begin();
- mpu.calcOffsets(true,true);
+ //mpu.begin();
+ //mpu.calcOffsets(true,true);
 
  backLeft.setMotorSpeed(BL_SPEED);
  backRight.setMotorSpeed(BR_SPEED);
@@ -264,6 +265,8 @@ void setup() {
 
 
  // SetArmPosition(90); // Set initial position to 180 degrees
+
+
  driveForwardUntilFrontTooClose();
 
 }
@@ -295,8 +298,9 @@ void loop() {
   //   if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
   //   if(driveRightWhileCondition()) delay(DELAY_TIME);
   // }
-  if(currentState == OBJECTDETECTION) 
-  {
+  SetArmPosition;
+    if(currentState == OBJECTDETECTION) 
+    {
     long sideRightDistance = sideRightUltrasonic.readDistance();
     long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
 
@@ -402,7 +406,6 @@ void loop() {
     SpinRight(topLeft, topRight, backLeft, backRight);
     delay(300); // Rotate for 1 second
   }
-  Serial.println(sideLeftUltrasonic.readDistance() + sideRightUltrasonic.readDistance() > 110);
 }
   
 
