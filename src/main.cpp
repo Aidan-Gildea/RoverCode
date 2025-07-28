@@ -85,9 +85,9 @@
 
 
 #define LR_OFFSET 20
-#define RIGHT_DISTANCE_TO_STOP 56
-#define LEFT_DISTANCE_TO_STOP 4
-#define FRONT_DISTANCE_TO_STOP 66
+#define RIGHT_DISTANCE_TO_STOP 63
+#define LEFT_DISTANCE_TO_STOP 35
+#define FRONT_DISTANCE_TO_STOP 35
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
@@ -154,8 +154,8 @@ bool conditionLR() {
     LR_FLAG_LED.on();
     currentState = OBJECTDETECTION;
     delay(300);
-    DriveBackward(topLeft, topRight, backLeft, backRight);
-    delay(400);
+   // DriveBackward(topLeft, topRight, backLeft, backRight);
+    //delay(400);
     StopMotors(topLeft, topRight, backLeft, backRight);
   }
   return success;
@@ -259,10 +259,10 @@ void setup() {
 //  mpu.begin();
 //  mpu.calcOffsets(true,true);
 
- backLeft.setMotorSpeed(BL_SPEED);
- backRight.setMotorSpeed(BR_SPEED);
- topLeft.setMotorSpeed(TL_SPEED);
- topRight.setMotorSpeed(TR_SPEED);
+ backLeft.setMotorSpeed(SLOW_BL_FB);
+ backRight.setMotorSpeed(SLOW_BL_FB);
+ topLeft.setMotorSpeed(SLOW_TL_FB);
+ topRight.setMotorSpeed(SLOW_TR_FB);
 
 
  StopMotors(topLeft, topRight, backLeft, backRight);
@@ -291,123 +291,129 @@ enum OBJDState
 
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
-int count = 0; 
-void loop() {
+void loop()
+{
+  StrafeRight(topLeft, topRight, backLeft, backRight);
+}
 
-  if(currentState == MAZENAVIGATION) 
-  {
-    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-    if(driveLeftWhileCondition()) delay(DELAY_TIME);
-    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-    if(driveRightWhileCondition()) delay(DELAY_TIME);
-  }
-  else if(currentState == OBJECTDETECTION) 
-  {
-    long sideRightDistance = sideRightUltrasonic.readDistance();
-    long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
+// int count = 0; 
+// void loop() {
 
-    if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
-    {
-      StrafeRight(topLeft, topRight, backLeft, backRight);
-      if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
-      }
-      else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
-      {
-        count++;
-      }
-      else
-      {
-        count = 0; 
-      }
-    }
-    else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
-    {
-      if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
-      {
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+//   if(currentState == MAZENAVIGATION) 
+//   {
+//     if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+//     if(driveLeftWhileCondition()) delay(DELAY_TIME);
+//     if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+//     if(driveRightWhileCondition()) delay(DELAY_TIME);
+//   }
+//   else if(currentState == OBJECTDETECTION) 
+//   {
+//     long sideRightDistance = sideRightUltrasonic.readDistance();
+//     long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
 
-        DriveBackward(topLeft, topRight, backLeft, backRight);
+//     if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
+//     {
+//       StrafeRight(topLeft, topRight, backLeft, backRight);
+//       if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
+//         StopMotors(topLeft, topRight, backLeft, backRight);
+//         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
+//       }
+//       else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
+//       {
+//         count++;
+//       }
+//       else
+//       {
+//         count = 0; 
+//       }
+//     }
+//     else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
+//     {
+//       if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
+//       {
+//         StopMotors(topLeft, topRight, backLeft, backRight);
+//         objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+
+//         DriveBackward(topLeft, topRight, backLeft, backRight);
         
-        delay(BACKWARD_TIME);
-        StopMotors(topLeft, topRight, backLeft, backRight);
+//         delay(BACKWARD_TIME);
+//         StopMotors(topLeft, topRight, backLeft, backRight);
           
         
-      }
-      else
-      {
-        DriveForward(topLeft, topRight, backLeft, backRight);
-      }
+//       }
+//       else
+//       {
+//         DriveForward(topLeft, topRight, backLeft, backRight);
+//       }
       
-    }
-    else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
-    {
-      StopMotors(topLeft, topRight, backLeft, backRight);
-      StrafeRight(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
-      {
-        objdState = PAUSEANDGRABOBJECT;
-      }
-    }
-    else if(objdState == PAUSEANDGRABOBJECT)
-    {
-      StopMotors(topLeft, topRight, backLeft, backRight);
+//     }
+//     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
+//     {
+//       StopMotors(topLeft, topRight, backLeft, backRight);
+//       StrafeRight(topLeft, topRight, backLeft, backRight);
+//       if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
+//       {
+//         objdState = PAUSEANDGRABOBJECT;
+//       }
+//     }
+//     else if(objdState == PAUSEANDGRABOBJECT)
+//     {
+//       StopMotors(topLeft, topRight, backLeft, backRight);
 
-      SetArmPosition(180); // Grab the object
-      delay(300);
-      objdState = STRAFELEFTUNTILLEFTDISTANCE;
-    }
-    else if(objdState == STRAFELEFTUNTILLEFTDISTANCE)
-    {
-      StrafeLeft(topLeft, topRight, backLeft, backRight);
-      if(sideLeftUltrasonic.readDistance() < LEFT_DISTANCE_TO_STOP) {
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
-      }
-    }
-    else if(objdState == DETECTFRONTSENSORUNTILDISTANCE)
-    {
-      if(frontDistance > FRONT_DISTANCE_TO_STOP) 
-      {
-        while(frontDistance > FRONT_DISTANCE_TO_STOP)
-        {
-          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
-          DriveForward(topLeft, topRight, backLeft, backRight);
-        }
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
-        return;
-      } 
-      else 
-      {
-        while(frontDistance < FRONT_DISTANCE_TO_STOP)
-        {
-          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
-          DriveBackward(topLeft, topRight, backLeft, backRight);
-        }
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
-        return;
-      }
-      objdState = RELEASEOBJECT;
-    }
-    else if(objdState == RELEASEOBJECT)
-    {
-      StopMotors(topLeft, topRight, backLeft, backRight);
-      delay(300);
-      SetArmPosition(90); // Release the object
-      delay(300);
-      objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
-    }
-  }
-  else if(currentState == DONE) 
-  {
-    // twerk
+//       SetArmPosition(180); // Grab the object
+//       delay(300);
+//       objdState = STRAFELEFTUNTILLEFTDISTANCE;
+//     }
+//     else if(objdState == STRAFELEFTUNTILLEFTDISTANCE)
+//     {
+//       StrafeLeft(topLeft, topRight, backLeft, backRight);
+//       if(sideLeftUltrasonic.readDistance() < LEFT_DISTANCE_TO_STOP) {
+//         objdState = DETECTFRONTSENSORUNTILDISTANCE;
+//       }
+//     }
+//     else if(objdState == DETECTFRONTSENSORUNTILDISTANCE)
+//     {
+//       if(frontDistance > FRONT_DISTANCE_TO_STOP) 
+//       {
+//         while(frontDistance > FRONT_DISTANCE_TO_STOP)
+//         {
+//           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
+//           DriveForward(topLeft, topRight, backLeft, backRight);
+//         }
+//         objdState = DETECTFRONTSENSORUNTILDISTANCE;
+//         return;
+//       } 
+//       else 
+//       {
+//         while(frontDistance < FRONT_DISTANCE_TO_STOP)
+//         {
+//           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
+//           DriveBackward(topLeft, topRight, backLeft, backRight);
+//         }
+//         objdState = DETECTFRONTSENSORUNTILDISTANCE;
+//         return;
+//       }
+//       objdState = RELEASEOBJECT;
+//     }
+//     else if(objdState == RELEASEOBJECT)
+//     {
+//       StopMotors(topLeft, topRight, backLeft, backRight);
+//       delay(300);
+//       SetArmPosition(90); // Release the object
+//       delay(300);
+//       objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
+//     }
+//     delay(100);
+//   }
+//   else if(currentState == DONE) 
+//   {
+//     // twerk
 
-    SpinLeft(topLeft, topRight, backLeft, backRight);
-    delay(300); // Rotate for 1 second
-    SpinRight(topLeft, topRight, backLeft, backRight);
-    delay(300); // Rotate for 1 second
-  }
-}
+//     SpinLeft(topLeft, topRight, backLeft, backRight);
+//     delay(300); // Rotate for 1 second
+//     SpinRight(topLeft, topRight, backLeft, backRight);
+//     delay(300); // Rotate for 1 second
+//   }
+// }
   
 
