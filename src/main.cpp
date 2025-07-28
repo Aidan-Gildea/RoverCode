@@ -73,7 +73,7 @@
 #define DELAY_TIME 50
 
 
-#define MAZE_TIME 10 // 7 seconds
+#define MAZE_TIME 12000 // 7 seconds
 
 
 #define STEPOVER_DELAY 200
@@ -120,7 +120,7 @@ Servo backServo;
 LED LR_FLAG_LED(LR_FLAG_PIN);
 LED TIMER_FLAG_LED(TIMER_FLAG_PIN);
 
-//MPU6050 mpu(Wire);
+MPU6050 mpu(Wire);
 
 enum CurrentState
 {
@@ -129,7 +129,7 @@ enum CurrentState
   DONE
 };
 
-CurrentState currentState = OBJECTDETECTION;
+CurrentState currentState = MAZENAVIGATION;
 
 void SetArmPosition(int angle)
 {
@@ -160,28 +160,27 @@ bool conditionLR() {
 }
 
 
-// void CorrectAngle()
-// {
-//  mpu.update();
-//  float angleZ = mpu.getAngleZ();
-//  while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
-//    if(angleZ > 0) {
-//      SpinRight(topLeft, topRight, backLeft, backRight);
-//      mpu.update();
-//     angleZ = mpu.getAngleZ();
-//    } else {
-//      SpinLeft(topLeft, topRight, backLeft, backRight);
-//      mpu.update();
-//      angleZ = mpu.getAngleZ();
+void CorrectAngle()
+{
+ mpu.update();
+ float angleZ = mpu.getAngleZ();
+ while(angleZ > ANGLE_CORRECTION_THRESHOLD || angleZ < -ANGLE_CORRECTION_THRESHOLD) {
+   if(angleZ > 0) {
+     SpinRight(topLeft, topRight, backLeft, backRight);
+     mpu.update();
+    angleZ = mpu.getAngleZ();
+   } else {
+     SpinLeft(topLeft, topRight, backLeft, backRight);
+     mpu.update();
+     angleZ = mpu.getAngleZ();
 
-//    }
-//    mpu.update();
-//    angleZ = mpu.getAngleZ()
-//  }
-//  StopMotors(topLeft, topRight, backLeft, backRight);
-// }
-// // 前進直到前方或左右側距離過近
-// // drive forward works
+   }
+   mpu.update();
+   angleZ = mpu.getAngleZ();
+ }
+ StopMotors(topLeft, topRight, backLeft, backRight);
+}
+
 
 
 bool driveForwardUntilFrontTooClose() {
@@ -245,11 +244,11 @@ bool driveRightWhileCondition() {
 
 void setup() {
  Serial.begin(9600);
-//  Wire.begin();
+ Wire.begin();
 
  delay(1000);
- //mpu.begin();
- //mpu.calcOffsets(true,true);
+ mpu.begin();
+ mpu.calcOffsets(true,true);
 
  backLeft.setMotorSpeed(BL_SPEED);
  backRight.setMotorSpeed(BR_SPEED);
@@ -264,7 +263,7 @@ void setup() {
  backServo.attach(BACK_SERVO_PIN);
 
 
- // SetArmPosition(90); // Set initial position to 180 degrees
+ SetArmPosition(90); // Set initial position to 180 degrees
 
 
  driveForwardUntilFrontTooClose();
@@ -288,19 +287,15 @@ OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
 int count = 0; 
 void loop() {
-  // Serial.println(mpu.getAngleZ());
-  // CorrectAngle();
-
-  // if(currentState == MAZENAVIGATION) 
-  // {
-  //   if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-  //   if(driveLeftWhileCondition()) delay(DELAY_TIME);
-  //   if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-  //   if(driveRightWhileCondition()) delay(DELAY_TIME);
-  // }
-  SetArmPosition;
-    if(currentState == OBJECTDETECTION) 
-    {
+  if(currentState == MAZENAVIGATION) 
+  {
+    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+    if(driveLeftWhileCondition()) delay(DELAY_TIME);
+    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+    if(driveRightWhileCondition()) delay(DELAY_TIME);
+  }
+  else if(currentState == OBJECTDETECTION) 
+  {
     long sideRightDistance = sideRightUltrasonic.readDistance();
     long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
 
