@@ -12,28 +12,28 @@
 
 // slower motor speeds for object driving forward / backward
 
-// #define SLOW_BR_FB 200
-// #define SLOW_BL_FB 183
-// #define SLOW_TL_FB 100 // ideal
-// #define SLOW_TR_FB 115
+#define SLOW_BR_FB 200
+#define SLOW_BL_FB 183
+#define SLOW_TL_FB 100 // ideal
+#define SLOW_TR_FB 115
 
 // now for strafing left
-// #define SLOW_BR_FB 200
-// #define SLOW_BL_FB 190
-// #define SLOW_TL_FB 100 // ideal
-// #define SLOW_TR_FB 115
+#define SLOW_BR_SL 200
+#define SLOW_BL_SL 190
+#define SLOW_TL_SL 100 // ideal
+#define SLOW_TR_SL 115
 
 //now for strafing right
-// #define SLOW_BR_FB 200
-// #define SLOW_BL_FB 190
-// #define SLOW_TL_FB 105 // ideal
-// #define SLOW_TR_FB 115
+#define SLOW_BR_SR 200
+#define SLOW_BL_SR 190
+#define SLOW_TL_SR 105 // ideal
+#define SLOW_TR_SR 115
 
 //now test for strafing right without wheel
-#define SLOW_BR_FB 200
-#define SLOW_BL_FB 190
-#define SLOW_TL_FB 105
-#define SLOW_TR_FB 107
+// #define SLOW_BR_FB 200
+// #define SLOW_BL_FB 190
+// #define SLOW_TL_FB 105
+// #define SLOW_TR_FB 107
 
 // more changes !
 
