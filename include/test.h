@@ -10,17 +10,25 @@
 #define TL_SPEED 126
 #define TR_SPEED 132
 
-//regular motor speeds for strafing right
+//regular motor speeds for strafing right-- done
+#define BR_R_SPEED 255
+#define BL_R_SPEED 255
+#define TL_R_SPEED 125
+#define TR_R_SPEED 110
 
-//regular motor speeds for strafing left
+//regular motor speeds for strafing left--done
+#define BR_L_SPEED 250
+#define BL_L_SPEED 255
+#define TL_L_SPEED 115
+#define TR_L_SPEED 130
 
 
-// slower motor speeds for object driving forward / backward
+// slower motor speeds for object driving forward / backward -- done
 
-#define SLOW_BR_FB 200
-#define SLOW_BL_FB 183
-#define SLOW_TL_FB 100 
-#define SLOW_TR_FB 115
+#define SLOW_BR_FB 165
+#define SLOW_BL_FB 148
+#define SLOW_TL_FB 65
+#define SLOW_TR_FB 80
 
 // now for strafing left -- done
 #define SLOW_BR_SL 180

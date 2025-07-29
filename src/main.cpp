@@ -267,7 +267,7 @@ void setup() {
 //  mpu.begin();
 //  mpu.calcOffsets(true,true);
 
-  SetSpeeds(SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);
+  SetSpeeds(TL_L_SPEED, TR_L_SPEED, BL_L_SPEED, BR_L_SPEED);
 
 
  StopMotors(topLeft, topRight, backLeft, backRight);
