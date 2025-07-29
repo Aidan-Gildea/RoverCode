@@ -24,8 +24,15 @@
 
 //hardcoded values based off of envionrment: 
 
+
+
 // object detection strafe right delay time
-#define OBJD_SR_DT 1000 // 1000ms
+#define OBJD_SR_DT 2000 // 1000ms
+#define OBJD_SL_DT 4000
+#define RIGHT_DISTANCE_TO_STOP 40 // if in quadrant 1, do 35, else do 60
+#define OBJECT_DISTANCE 21 // if in quadrant 1, do 21
+
+
 // i made a change
 #define enA_leftFront 2
 #define in2_leftFront 22
@@ -87,10 +94,10 @@
 
 #define TIMER_FLAG_PIN 35
 #define LR_FLAG_PIN 34
+#define OBJD_TIMER_PIN 38
 
 
 #define LR_OFFSET 20
-#define RIGHT_DISTANCE_TO_STOP 60
 #define LEFT_DISTANCE_TO_STOP 35
 #define FRONT_DISTANCE_TO_STOP 35
 
@@ -100,7 +107,6 @@
 #define STOP_AND_GRAB_DISTANCE 15
 #define WAIT_TIME 300
 
-#define OBJECT_DISTANCE (RIGHT_DISTANCE_TO_STOP-30) // where 2 is the offset
 
 #define CLOSE_OBJECT 10
 
@@ -126,6 +132,7 @@ Servo backServo;
 
 LED LR_FLAG_LED(LR_FLAG_PIN);
 LED TIMER_FLAG_LED(TIMER_FLAG_PIN);
+LED OBJD_TIMER_LED(OBJD_TIMER_PIN);
 
 MPU6050 mpu(Wire);
 
@@ -137,6 +144,8 @@ enum CurrentState
 };
 
 CurrentState currentState = MAZENAVIGATION;
+
+Timer newTimer(OBJD_SR_DT);
 
 void SetArmPosition(int angle)
 {
@@ -161,6 +170,7 @@ bool conditionLR() {
   if(millis() < MAZE_TIME) return false; // Only check after MAZE_TIME has passed
   TIMER_FLAG_LED.on();
   bool success= (left + right) > (MAZE_WIDTH - ROBOT_WIDTH-LR_OFFSET);
+  
   if(success) 
   {
     LR_FLAG_LED.on();
@@ -168,10 +178,15 @@ bool conditionLR() {
     delay(300);
    // DriveBackward(topLeft, topRight, backLeft, backRight);
     //delay(400);
-    SetSpeeds(SLOW_TL_FB,SLOW_TR_FB,SLOW_BL_FB, SLOW_BR_FB);
+    //SetSpeeds(SLOW_TL_FB,SLOW_TR_FB,SLOW_BL_FB, SLOW_BR_FB);
     StopMotors(topLeft, topRight, backLeft, backRight);
+
+    newTimer.reset();
+    newTimer.setInterval(OBJD_SR_DT);
+    OBJD_TIMER_LED.off();
   }
   return success;
+
 }
 
 // void CorrectAngle()
@@ -310,6 +325,8 @@ void setup() {
 
  SetArmPosition(90); // Set initial position to 180 degrees
 
+ OBJD_TIMER_LED.on();
+
 }
 
 
@@ -327,7 +344,6 @@ enum OBJDState
 
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
-Timer newTimer(OBJD_SR_DT);
 
 int count = 0; 
 void loop() {
@@ -350,13 +366,15 @@ void loop() {
 
     if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
     {
-      SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
+      //if(newTimer.isReady()) OBJD_TIMER_LED.on();
       
       StrafeRight(topLeft, topRight, backLeft, backRight, false);
-      if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
+
+      if(((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) && newTimer.isReady()) {
         StopMotors(topLeft, topRight, backLeft, backRight);
         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
-        SetSpeeds(SLOW_TL_FB, SLOW_TR_FB, SLOW_BL_FB, SLOW_BR_FB);
+
+        // implement a timer here for level 1 
       }
       else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
       {
@@ -378,7 +396,7 @@ void loop() {
         
         //delay(BACKWARD_TIME);
         StopMotors(topLeft, topRight, backLeft, backRight);
-        SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
+        //SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
           
         
       }
@@ -404,12 +422,18 @@ void loop() {
       SetArmPosition(25); // Grab the object
       delay(300);
       objdState = STRAFELEFTUNTILLEFTDISTANCE;
-      SetSpeeds(SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);
+      //SetSpeeds(SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);
+
+      OBJD_TIMER_LED.off();
+      newTimer.reset();
+      newTimer.setInterval(OBJD_SL_DT);
     }
     else if(objdState == STRAFELEFTUNTILLEFTDISTANCE)
     {
+      if(newTimer.isReady()) OBJD_TIMER_LED.on();
+
       StrafeLeft(topLeft, topRight, backLeft, backRight, false);
-      if(sideLeftUltrasonic.readDistance() < LEFT_DISTANCE_TO_STOP) {
+      if(sideLeftUltrasonic.readDistance() < LEFT_DISTANCE_TO_STOP && newTimer.isReady()) {
         objdState = DETECTFRONTSENSORUNTILDISTANCE;
       }
     }

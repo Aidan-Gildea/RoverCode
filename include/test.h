@@ -17,7 +17,7 @@
 #define TR_R_SPEED 105
 
 //regular motor speeds for strafing left--done
-#define BR_L_SPEED 250
+#define BR_L_SPEED 240
 #define BL_L_SPEED 238
 #define TL_L_SPEED 105
 #define TR_L_SPEED 120
@@ -85,13 +85,12 @@ public:
   Timer(unsigned long i = 1000) : previousTime(0), interval(i) {}
 
   void setInterval(unsigned long i) {
-    interval = i;
-  }
+      interval = i;
+    }
 
   bool isReady() {
     unsigned long currentTime = millis();
     if (currentTime - previousTime >= interval) {
-      previousTime = currentTime;
       return true;
     }
     return false;
