@@ -301,128 +301,128 @@ OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 //   StrafeRight(topLeft, topRight, backLeft, backRight);
 // }
 
-int count = 0; 
-void loop() {
+// int count = 0; 
+// void loop() {
 
-  if(currentState == MAZENAVIGATION) 
-  {
-    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-    if(driveLeftWhileCondition()) delay(DELAY_TIME);
-    if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
-    if(driveRightWhileCondition()) delay(DELAY_TIME);
-  }
-  else if(currentState == OBJECTDETECTION) 
-  {
-    long sideRightDistance = sideRightUltrasonic.readDistance();
-    long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
+//   if(currentState == MAZENAVIGATION) 
+//   {
+//     if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+//     if(driveLeftWhileCondition()) delay(DELAY_TIME);
+//     if(driveForwardUntilFrontTooClose()) delay(DELAY_TIME);
+//     if(driveRightWhileCondition()) delay(DELAY_TIME);
+//   }
+//   else if(currentState == OBJECTDETECTION) 
+//   {
+//     long sideRightDistance = sideRightUltrasonic.readDistance();
+//     long frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
 
-    if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
-    {
-      SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
-      StrafeRight(topLeft, topRight, backLeft, backRight);
-      if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
-        SetSpeeds(SLOW_TL_FB, SLOW_TR_FB, SLOW_BL_FB, SLOW_BR_FB);
-      }
-      else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
-      {
-        count++;
-      }
-      else
-      {
-        count = 0; 
-      }
-    }
-    else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
-    {
-      if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
-      {
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+//     if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
+//     {
+//       SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
+//       StrafeRight(topLeft, topRight, backLeft, backRight);
+//       if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) {
+//         StopMotors(topLeft, topRight, backLeft, backRight);
+//         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
+//         SetSpeeds(SLOW_TL_FB, SLOW_TR_FB, SLOW_BL_FB, SLOW_BR_FB);
+//       }
+//       else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
+//       {
+//         count++;
+//       }
+//       else
+//       {
+//         count = 0; 
+//       }
+//     }
+//     else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
+//     {
+//       if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
+//       {
+//         StopMotors(topLeft, topRight, backLeft, backRight);
+//         objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
 
-        //DriveBackward(topLeft, topRight, backLeft, backRight);
+//         //DriveBackward(topLeft, topRight, backLeft, backRight);
         
-        //delay(BACKWARD_TIME);
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
+//         //delay(BACKWARD_TIME);
+//         StopMotors(topLeft, topRight, backLeft, backRight);
+//         SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
           
         
-      }
-      else
-      {
-        DriveForward(topLeft, topRight, backLeft, backRight);
-      }
+//       }
+//       else
+//       {
+//         DriveForward(topLeft, topRight, backLeft, backRight);
+//       }
       
-    }
-    else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
-    {
-      StopMotors(topLeft, topRight, backLeft, backRight);
-      StrafeRight(topLeft, topRight, backLeft, backRight);
-      if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
-      {
-        objdState = PAUSEANDGRABOBJECT;
-      }
-    }
-    else if(objdState == PAUSEANDGRABOBJECT)
-    {
-      StopMotors(topLeft, topRight, backLeft, backRight);
+//     }
+//     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
+//     {
+//       StopMotors(topLeft, topRight, backLeft, backRight);
+//       StrafeRight(topLeft, topRight, backLeft, backRight);
+//       if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
+//       {
+//         objdState = PAUSEANDGRABOBJECT;
+//       }
+//     }
+//     else if(objdState == PAUSEANDGRABOBJECT)
+//     {
+//       StopMotors(topLeft, topRight, backLeft, backRight);
 
-      SetArmPosition(180); // Grab the object
-      delay(300);
-      objdState = STRAFELEFTUNTILLEFTDISTANCE;
-      SetSpeeds(SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);
-    }
-    else if(objdState == STRAFELEFTUNTILLEFTDISTANCE)
-    {
-      StrafeLeft(topLeft, topRight, backLeft, backRight);
-      if(sideLeftUltrasonic.readDistance() < LEFT_DISTANCE_TO_STOP) {
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
-      }
-    }
-    else if(objdState == DETECTFRONTSENSORUNTILDISTANCE)
-    {
-      if(frontDistance > FRONT_DISTANCE_TO_STOP) 
-      {
-        while(frontDistance > FRONT_DISTANCE_TO_STOP)
-        {
-          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
-          DriveForward(topLeft, topRight, backLeft, backRight);
-        }
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
-        return;
-      } 
-      else 
-      {
-        while(frontDistance < FRONT_DISTANCE_TO_STOP)
-        {
-          frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
-          DriveBackward(topLeft, topRight, backLeft, backRight);
-        }
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
-        return;
-      }
-      objdState = RELEASEOBJECT;
-    }
-    else if(objdState == RELEASEOBJECT)
-    {
-      StopMotors(topLeft, topRight, backLeft, backRight);
-      delay(300);
-      SetArmPosition(90); // Release the object
-      delay(300);
-      objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
-    }
-    delay(100);
-  }
-  else if(currentState == DONE) 
-  {
-    // twerk
+//       SetArmPosition(0); // Grab the object
+//       delay(300);
+//       objdState = STRAFELEFTUNTILLEFTDISTANCE;
+//       SetSpeeds(SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);
+//     }
+//     else if(objdState == STRAFELEFTUNTILLEFTDISTANCE)
+//     {
+//       StrafeLeft(topLeft, topRight, backLeft, backRight);
+//       if(sideLeftUltrasonic.readDistance() < LEFT_DISTANCE_TO_STOP) {
+//         objdState = DETECTFRONTSENSORUNTILDISTANCE;
+//       }
+//     }
+//     else if(objdState == DETECTFRONTSENSORUNTILDISTANCE)
+//     {
+//       if(frontDistance > FRONT_DISTANCE_TO_STOP) 
+//       {
+//         while(frontDistance > FRONT_DISTANCE_TO_STOP)
+//         {
+//           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
+//           DriveForward(topLeft, topRight, backLeft, backRight);
+//         }
+//         objdState = DETECTFRONTSENSORUNTILDISTANCE;
+//         return;
+//       } 
+//       else 
+//       {
+//         while(frontDistance < FRONT_DISTANCE_TO_STOP)
+//         {
+//           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
+//           DriveBackward(topLeft, topRight, backLeft, backRight);
+//         }
+//         objdState = DETECTFRONTSENSORUNTILDISTANCE;
+//         return;
+//       }
+//       objdState = RELEASEOBJECT;
+//     }
+//     else if(objdState == RELEASEOBJECT)
+//     {
+//       StopMotors(topLeft, topRight, backLeft, backRight);
+//       delay(300);
+//       SetArmPosition(90); // Release the object
+//       delay(300);
+//       objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
+//     }
+//     delay(100);
+//   }
+//   else if(currentState == DONE) 
+//   {
+//     // twerk
 
-    SpinLeft(topLeft, topRight, backLeft, backRight);
-    delay(300); // Rotate for 1 second
-    SpinRight(topLeft, topRight, backLeft, backRight);
-    delay(300); // Rotate for 1 second
-  }
-}
+//     SpinLeft(topLeft, topRight, backLeft, backRight);
+//     delay(300); // Rotate for 1 second
+//     SpinRight(topLeft, topRight, backLeft, backRight);
+//     delay(300); // Rotate for 1 second
+//   }
+// }
   
 
