@@ -50,7 +50,6 @@
 
 // more changes !
 
-
 struct LED
 {
     int pin;
@@ -145,6 +144,14 @@ struct HBridgeMotor
     }
 };
 
+void SetSpeeds(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight, byte tl, byte tr, byte bl, byte br)
+{
+  topLeft.setMotorSpeed(tl);
+  topRight.setMotorSpeed(tr);
+  backLeft.setMotorSpeed(bl);
+  backRight.setMotorSpeed(br);
+}
+
 
 // unfinished :(
 struct Encoder
@@ -167,28 +174,66 @@ struct Encoder
 };
 
 
-void DriveForward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+void DriveForward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight, bool mazenav) {
+    if(mazenav == true)
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, TL_SPEED, TR_SPEED, BL_SPEED, BR_SPEED);   
+    }
+    else
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_FB, SLOW_TR_FB, SLOW_BL_FB, SLOW_BR_FB);  
+    }
+        
     topLeft.driveForward();
     topRight.driveForward();
     backLeft.driveForward();
     backRight.driveForward();
 }
 
-void DriveBackward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+void DriveBackward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight, bool mazenav) {
+    if(mazenav == true)
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, TL_SPEED, TR_SPEED, BL_SPEED, BR_SPEED);   
+    }
+    else
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_FB, SLOW_TR_FB, SLOW_BL_FB, SLOW_BR_FB);  
+    }
+    
     topLeft.driveBackward();
     topRight.driveBackward();
     backLeft.driveBackward();
     backRight.driveBackward();
 }
 
-void StrafeLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+
+void StrafeLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight, bool mazenav) {
+    
+    if(mazenav == true)
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, TL_L_SPEED, TR_L_SPEED, BL_L_SPEED, BR_L_SPEED);   
+    }
+    else
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);  
+    }
+    
     topLeft.driveBackward();
     topRight.driveForward();
     backLeft.driveForward();
     backRight.driveBackward();
 }
 
-void StrafeRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+void StrafeRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight, bool mazenav) {
+    if(mazenav == true)
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, TL_R_SPEED, TR_R_SPEED, BL_R_SPEED, BR_R_SPEED);   
+    }
+    else
+    {
+        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);  
+    }
+    
     topLeft.driveForward();
     topRight.driveBackward();
     backLeft.driveBackward();
@@ -202,19 +247,19 @@ void StopMotors(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& bac
     backRight.stop();
 }
 
-void SpinRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
-    topLeft.driveForward();
-    topRight.driveBackward();
-    backLeft.driveForward();
-    backRight.driveBackward();
-}
+// void SpinRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+//     topLeft.driveForward();
+//     topRight.driveBackward();
+//     backLeft.driveForward();
+//     backRight.driveBackward();
+// }
 
-void SpinLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
-    topLeft.driveBackward();
-    topRight.driveForward();
-    backLeft.driveBackward();
-    backRight.driveForward();
-}
+// void SpinLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight) {
+//     topLeft.driveBackward();
+//     topRight.driveForward();
+//     backLeft.driveBackward();
+//     backRight.driveForward();
+// }
 
 
 bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
@@ -228,3 +273,4 @@ bool TestUltrasonic(Ultrasonic& sensor, int flagDistance) {
 
 
 }
+
