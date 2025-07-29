@@ -29,8 +29,8 @@
 // object detection strafe right delay time
 #define OBJD_SR_DT 2000 // 1000ms
 #define OBJD_SL_DT 4000
-#define RIGHT_DISTANCE_TO_STOP 40 // if in quadrant 1, do 35, else do 60
-#define OBJECT_DISTANCE 21 // if in quadrant 1, do 21
+#define RIGHT_DISTANCE_TO_STOP 60 // if in quadrant 1, do 35, else do 60
+#define OBJECT_DISTANCE 30 // if in quadrant 1, do 21
 
 
 // i made a change
@@ -98,8 +98,8 @@
 
 
 #define LR_OFFSET 20
-#define LEFT_DISTANCE_TO_STOP 35
-#define FRONT_DISTANCE_TO_STOP 35
+#define LEFT_DISTANCE_TO_STOP 15
+#define FRONT_DISTANCE_TO_STOP 40
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
@@ -175,9 +175,9 @@ bool conditionLR() {
   {
     LR_FLAG_LED.on();
     currentState = OBJECTDETECTION;
-    delay(300);
+    //delay(300);
    // DriveBackward(topLeft, topRight, backLeft, backRight);
-    //delay(400);
+    delay(400);
     //SetSpeeds(SLOW_TL_FB,SLOW_TR_FB,SLOW_BL_FB, SLOW_BR_FB);
     StopMotors(topLeft, topRight, backLeft, backRight);
 
@@ -419,7 +419,7 @@ void loop() {
     {
       StopMotors(topLeft, topRight, backLeft, backRight);
 
-      SetArmPosition(25); // Grab the object
+      SetArmPosition(0); // Grab the object
       delay(300);
       objdState = STRAFELEFTUNTILLEFTDISTANCE;
       //SetSpeeds(SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);
@@ -446,7 +446,7 @@ void loop() {
           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveForward(topLeft, topRight, backLeft, backRight, false);
         }
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
+        objdState = RELEASEOBJECT;
         return;
       } 
       else 
@@ -456,7 +456,7 @@ void loop() {
           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveBackward(topLeft, topRight, backLeft, backRight, false);
         }
-        objdState = DETECTFRONTSENSORUNTILDISTANCE;
+        objdState = RELEASEOBJECT;
         return;
       }
       objdState = RELEASEOBJECT;
@@ -464,10 +464,10 @@ void loop() {
     else if(objdState == RELEASEOBJECT)
     {
       StopMotors(topLeft, topRight, backLeft, backRight);
-      delay(300);
-      SetArmPosition(90); // Release the object
-      delay(300);
-      objdState = STRAFERIGHTUNTILRIGHTDISTANCE; // Reset state to start over
+      //delay(300);
+      //SetArmPosition(90); // Release the object
+      //delay(300);
+      currentState = DONE; // Reset state to start over
     }
     delay(100);
   }
