@@ -28,11 +28,11 @@
 #define SLOW_TL_SL 100 // ideal
 #define SLOW_TR_SL 115
 
-//now for strafing right
-#define SLOW_BR_SR 200
-#define SLOW_BL_SR 190
-#define SLOW_TL_SR 105 // ideal
-#define SLOW_TR_SR 115
+//now for strafing right -- done
+#define SLOW_BR_SR 195
+#define SLOW_BL_SR 195
+#define SLOW_TL_SR 95 // ideal
+#define SLOW_TR_SR 100
 
 //now test for strafing right without wheel
 // #define SLOW_BR_FB 200

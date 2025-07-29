@@ -267,7 +267,7 @@ void setup() {
 //  mpu.begin();
 //  mpu.calcOffsets(true,true);
 
-  SetSpeeds(TL_SPEED, TR_SPEED, BL_SPEED, BR_SPEED);
+  SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
 
 
  StopMotors(topLeft, topRight, backLeft, backRight);
@@ -297,7 +297,7 @@ enum OBJDState
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
 void loop(){
-  driveForwardUntilFrontTooClose();
+  StrafeRight(topLeft, topRight, backLeft, backRight);
 }
 // {
 //   StrafeRight(topLeft, topRight, backLeft, backRight);
