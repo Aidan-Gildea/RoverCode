@@ -13,14 +13,14 @@
 //regular motor speeds for strafing right-- done
 #define BR_R_SPEED 255
 #define BL_R_SPEED 255
-#define TL_R_SPEED 125
+#define TL_R_SPEED 135
 #define TR_R_SPEED 110
 
 //regular motor speeds for strafing left--done
 #define BR_L_SPEED 250
 #define BL_L_SPEED 255
 #define TL_L_SPEED 115
-#define TR_L_SPEED 130
+#define TR_L_SPEED 120
 
 
 // slower motor speeds for object driving forward / backward -- done
@@ -177,6 +177,7 @@ struct Encoder
 void DriveForward(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& backLeft, HBridgeMotor& backRight, bool mazenav) {
     if(mazenav == true)
     {
+        // maze navigation speeds
         SetSpeeds(topLeft, topRight, backLeft, backRight, TL_SPEED, TR_SPEED, BL_SPEED, BR_SPEED);   
     }
     else
