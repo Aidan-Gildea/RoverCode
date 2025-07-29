@@ -13,13 +13,13 @@
 //regular motor speeds for strafing right-- done
 #define BR_R_SPEED 255
 #define BL_R_SPEED 255
-#define TL_R_SPEED 135
-#define TR_R_SPEED 110
+#define TL_R_SPEED 145
+#define TR_R_SPEED 105
 
 //regular motor speeds for strafing left--done
 #define BR_L_SPEED 250
-#define BL_L_SPEED 255
-#define TL_L_SPEED 115
+#define BL_L_SPEED 238
+#define TL_L_SPEED 105
 #define TR_L_SPEED 120
 
 
@@ -75,6 +75,33 @@ struct LED
         digitalWrite(pin, state ? HIGH : LOW);
     }
 };
+
+struct Timer {
+private:
+  unsigned long previousTime;
+  unsigned long interval;
+
+public:
+  Timer(unsigned long i = 1000) : previousTime(0), interval(i) {}
+
+  void setInterval(unsigned long i) {
+    interval = i;
+  }
+
+  bool isReady() {
+    unsigned long currentTime = millis();
+    if (currentTime - previousTime >= interval) {
+      previousTime = currentTime;
+      return true;
+    }
+    return false;
+  }
+
+  void reset() {
+    previousTime = millis();
+  }
+};
+
 
 struct Ultrasonic
 {
