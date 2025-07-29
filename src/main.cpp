@@ -296,7 +296,9 @@ enum OBJDState
 
 OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
-// void loop()
+void loop(){
+  driveForwardUntilFrontTooClose();
+}
 // {
 //   StrafeRight(topLeft, topRight, backLeft, backRight);
 // }

@@ -3,12 +3,17 @@
 #include <Wire.h>
 #include <MPU6050_light.h>
 
-// arbitrary speed values for motors
+// speed values for going forward
 
 #define BR_SPEED 250
 #define BL_SPEED 255
 #define TL_SPEED 126
 #define TR_SPEED 132
+
+//regular motor speeds for strafing right
+
+//regular motor speeds for strafing left
+
 
 // slower motor speeds for object driving forward / backward
 
