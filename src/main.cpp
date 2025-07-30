@@ -28,14 +28,14 @@
 
 // object detection strafe right delay time
 
-#define level 0
+#define level 1
 
 #define OBJD_SR_DT 2000 // 1000ms
 #define OBJD_SL_DT 4000
 #define RIGHT_DISTANCE_TO_STOP 70 // if in quadrant 1, do 35, else do 60
-#define OBJECT_DISTANCE 33 // if in quadrant 1, do 21
+#define OBJECT_DISTANCE 38 // if in quadrant 1, do 21
 
-#define OBJD_DF_DT 1000
+#define OBJD_DF_DT 1000 // for the objdetection
 
 #define LR_TIME 0
 
@@ -109,7 +109,7 @@
 
 #define LR_OFFSET 20
 #define LEFT_DISTANCE_TO_STOP 15
-#define FRONT_DISTANCE_TO_STOP 50
+#define FRONT_DISTANCE_TO_STOP 45
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
@@ -413,28 +413,20 @@ void loop() {
     {
       if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
       {
-        OBJECTDETECTED_LED.on();
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
-        //if(dfBool == true || level == 0)
-        //{
-
-
-          //DriveBackward(topLeft, topRight, backLeft, backRight);
-          
-          //delay(BACKWARD_TIME);
-          //StopMotors(topLeft, topRight, backLeft, backRight);
-          //SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
-            
-        // }
-        // else
-        // {
-        //   StopMotors(topLeft, topRight, backLeft, backRight);
-        //   delay(500);
-        //   DriveForward(topLeft, topRight, backLeft, backRight, false);
-        //   delay(OBJD_DF_DT);
-        //   dfBool = true;
-        // }
+        if(dfBool == true || level == 0)
+        {
+          OBJECTDETECTED_LED.on();
+          StopMotors(topLeft, topRight, backLeft, backRight);
+          objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+        }
+        else
+        {
+          StopMotors(topLeft, topRight, backLeft, backRight);
+          delay(500);
+          DriveForward(topLeft, topRight, backLeft, backRight, false);
+          delay(OBJD_DF_DT);
+          dfBool = true;
+        }
         
       }
       else
