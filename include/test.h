@@ -43,7 +43,7 @@
 #define SLOW_BR_SR 135
 #define SLOW_BL_SR 120
 #define SLOW_TL_SR 135
-#define SLOW_TR_SR 135
+#define SLOW_TR_SR 145
 
 // ------------------------------------------
 //now test for strafing right without wheel
