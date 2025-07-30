@@ -30,8 +30,9 @@
 #define OBJD_SR_DT 2000 // 1000ms
 #define OBJD_SL_DT 4000
 #define RIGHT_DISTANCE_TO_STOP 60 // if in quadrant 1, do 35, else do 60
-#define OBJECT_DISTANCE 30 // if in quadrant 1, do 21
+#define OBJECT_DISTANCE 37 // if in quadrant 1, do 21
 
+#define OBJD_DF_DT 1000
 
 // i made a change
 #define enA_leftFront 2
@@ -86,10 +87,10 @@
 #define DELAY_TIME 50
 
 
-#define MAZE_TIME 13200 // 7 seconds
+#define MAZE_TIME 10000 // 7 seconds
 
 
-#define STEPOVER_DELAY 200
+#define STEPOVER_DELAY 50
 
 
 #define TIMER_FLAG_PIN 35
@@ -177,7 +178,7 @@ bool conditionLR() {
     currentState = OBJECTDETECTION;
     //delay(300);
    // DriveBackward(topLeft, topRight, backLeft, backRight);
-    delay(400);
+    //delay(400);
     //SetSpeeds(SLOW_TL_FB,SLOW_TR_FB,SLOW_BL_FB, SLOW_BR_FB);
     StopMotors(topLeft, topRight, backLeft, backRight);
 
@@ -346,6 +347,9 @@ OBJDState objdState = STRAFERIGHTUNTILRIGHTDISTANCE;
 
 
 int count = 0; 
+
+bool dfBool = false;
+
 void loop() {
 
   // maze naviation 
@@ -358,6 +362,8 @@ void loop() {
   }
 
   // object detection 
+
+
 
   else if(currentState == OBJECTDETECTION) 
   {
@@ -374,6 +380,8 @@ void loop() {
         StopMotors(topLeft, topRight, backLeft, backRight);
         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
 
+
+
         // implement a timer here for level 1 
       }
       else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
@@ -385,19 +393,30 @@ void loop() {
         count = 0; 
       }
     }
+
+    //---------------------------------------------
     else if(objdState == DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED)
     {
       if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
       {
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+        if(dfBool == true)
+        {
 
-        //DriveBackward(topLeft, topRight, backLeft, backRight);
-        
-        //delay(BACKWARD_TIME);
-        StopMotors(topLeft, topRight, backLeft, backRight);
-        //SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
+          StopMotors(topLeft, topRight, backLeft, backRight);
+          objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
+  
+          //DriveBackward(topLeft, topRight, backLeft, backRight);
           
+          //delay(BACKWARD_TIME);
+          StopMotors(topLeft, topRight, backLeft, backRight);
+          //SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
+            
+        }
+        else
+        {
+          delay(OBJD_DF_DT);
+          dfBool = true;
+        }
         
       }
       else
@@ -406,6 +425,7 @@ void loop() {
       }
       
     }
+    //---------------------------------------------
     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
     {
       StopMotors(topLeft, topRight, backLeft, backRight);
@@ -471,6 +491,8 @@ void loop() {
     }
     delay(100);
   }
+
+
 
 }
   
