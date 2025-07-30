@@ -32,10 +32,12 @@
 
 #define OBJD_SR_DT 2000 // 1000ms
 #define OBJD_SL_DT 4000
-#define RIGHT_DISTANCE_TO_STOP 60 // if in quadrant 1, do 35, else do 60
-#define OBJECT_DISTANCE 37 // if in quadrant 1, do 21
+#define RIGHT_DISTANCE_TO_STOP 70 // if in quadrant 1, do 35, else do 60
+#define OBJECT_DISTANCE 33 // if in quadrant 1, do 21
 
 #define OBJD_DF_DT 1000
+
+#define LR_TIME 0
 
 // i made a change
 #define enA_leftFront 2
@@ -79,7 +81,11 @@
 #define ROBOT_WIDTH 20
 
 
-#define TOO_CLOSE_THRESHOLD 20
+#define TOO_CLOSE_THRESHOLD_L 18
+#define TOO_CLOSE_THRESHOLD_R 20
+#define TOO_CLOSE_THRESHOLD_FRONT 20
+
+
 #define TOO_CLOSE_THRESHOLD_OFFSET 13
 
 
@@ -103,7 +109,7 @@
 
 #define LR_OFFSET 20
 #define LEFT_DISTANCE_TO_STOP 15
-#define FRONT_DISTANCE_TO_STOP 40
+#define FRONT_DISTANCE_TO_STOP 50
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
@@ -184,6 +190,7 @@ bool conditionLR() {
    // DriveBackward(topLeft, topRight, backLeft, backRight);
     //delay(400);
     //SetSpeeds(SLOW_TL_FB,SLOW_TR_FB,SLOW_BL_FB, SLOW_BR_FB);
+    delay(LR_TIME);
     StopMotors(topLeft, topRight, backLeft, backRight);
 
     newTimer.reset();
@@ -230,8 +237,8 @@ bool driveForwardUntilFrontTooClose(bool isMazeNavigation) // makes sense
 
  bool firstCondition = false; 
  while (
- (frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD) &&
- frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD && !conditionLR()
+ (frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_FRONT) &&
+ frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_FRONT && !conditionLR()
  )
  {
    firstCondition = true;
@@ -261,8 +268,8 @@ bool driveLeftWhileCondition(bool isMazeNavigation) { // seems logically correct
 
   bool firstCondition = false; 
   while (
-    (sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-    frontRightUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
+    (sideLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_L &&
+    frontRightUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
  )
  {
    //CorrectAngle();
@@ -272,7 +279,7 @@ bool driveLeftWhileCondition(bool isMazeNavigation) { // seems logically correct
     mpu.update();
     Serial.println( mpu.getAngleZ());
   }
-  if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
+  if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) {
     delay(STEPOVER_DELAY);
  }
  StopMotors(topLeft, topRight, backLeft, backRight);
@@ -294,8 +301,8 @@ bool driveRightWhileCondition(bool isMazeNavigation) {  // seems logically corre
 
   bool firstCondition = false; 
   while (
-    (sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD &&
-    frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
+    (sideRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_R &&
+    frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
   ) {
     firstCondition = true;
     //CorrectAngle();
@@ -304,7 +311,7 @@ bool driveRightWhileCondition(bool isMazeNavigation) {  // seems logically corre
     Serial.println( mpu.getAngleZ());
     delay(50);
   }  
-  if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD + TOO_CLOSE_THRESHOLD_OFFSET)) {
+  if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) {
     delay(STEPOVER_DELAY);
   }  
   StopMotors(topLeft, topRight, backLeft, backRight);
@@ -356,6 +363,7 @@ int count = 0;
 
 bool dfBool = false;
 
+
 void loop() {
 
   // maze naviation 
@@ -406,12 +414,12 @@ void loop() {
       if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
       {
         OBJECTDETECTED_LED.on();
+        StopMotors(topLeft, topRight, backLeft, backRight);
+        objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
         //if(dfBool == true || level == 0)
         //{
 
-          StopMotors(topLeft, topRight, backLeft, backRight);
-          objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
-  
+
           //DriveBackward(topLeft, topRight, backLeft, backRight);
           
           //delay(BACKWARD_TIME);

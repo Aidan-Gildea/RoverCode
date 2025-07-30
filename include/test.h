@@ -30,18 +30,22 @@
 #define SLOW_TL_FB 65
 #define SLOW_TR_FB 80
 
+
+// ---------- currently not using ------------
+
 // now for strafing left -- done
 #define SLOW_BR_SL 180
-#define SLOW_BL_SL 160
-#define SLOW_TL_SL 95 
+#define SLOW_BL_SL 170
+#define SLOW_TL_SL 85
 #define SLOW_TR_SL 100
 
 //now for strafing right -- done
-#define SLOW_BR_SR 195
-#define SLOW_BL_SR 195
-#define SLOW_TL_SR 95 
-#define SLOW_TR_SR 100
+#define SLOW_BR_SR 135
+#define SLOW_BL_SR 120
+#define SLOW_TL_SR 135
+#define SLOW_TR_SR 135
 
+// ------------------------------------------
 //now test for strafing right without wheel
 // #define SLOW_BR_FB 200
 // #define SLOW_BL_FB 190
@@ -241,8 +245,8 @@ void StrafeLeft(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& bac
         SetSpeeds(topLeft, topRight, backLeft, backRight, TL_L_SPEED, TR_L_SPEED, BL_L_SPEED, BR_L_SPEED);   
     }
     else
-    {
-        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_SL, SLOW_TR_SL, SLOW_BL_SL, SLOW_BR_SL);  
+        {
+            SetSpeeds(topLeft, topRight, backLeft, backRight, TL_L_SPEED, TR_L_SPEED, BL_L_SPEED, BR_L_SPEED);  
     }
     
     topLeft.driveBackward();
@@ -258,7 +262,7 @@ void StrafeRight(HBridgeMotor& topLeft, HBridgeMotor& topRight, HBridgeMotor& ba
     }
     else
     {
-        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);  
+        SetSpeeds(topLeft, topRight, backLeft, backRight, SLOW_TL_SR, TR_R_SPEED, BL_R_SPEED, BR_R_SPEED);  
     }
     
     topLeft.driveForward();
