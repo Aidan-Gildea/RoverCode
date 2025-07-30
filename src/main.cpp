@@ -27,6 +27,9 @@
 
 
 // object detection strafe right delay time
+
+#define level 0
+
 #define OBJD_SR_DT 2000 // 1000ms
 #define OBJD_SL_DT 4000
 #define RIGHT_DISTANCE_TO_STOP 60 // if in quadrant 1, do 35, else do 60
@@ -90,13 +93,13 @@
 #define MAZE_TIME 10000 // 7 seconds
 
 
-#define STEPOVER_DELAY 50
+#define STEPOVER_DELAY 200
 
 
 #define TIMER_FLAG_PIN 35
 #define LR_FLAG_PIN 34
 #define OBJD_TIMER_PIN 38
-
+#define OBJECTDETECTED_PIN 52
 
 #define LR_OFFSET 20
 #define LEFT_DISTANCE_TO_STOP 15
@@ -134,6 +137,7 @@ Servo backServo;
 LED LR_FLAG_LED(LR_FLAG_PIN);
 LED TIMER_FLAG_LED(TIMER_FLAG_PIN);
 LED OBJD_TIMER_LED(OBJD_TIMER_PIN);
+LED OBJECTDETECTED_LED(OBJECTDETECTED_PIN);
 
 MPU6050 mpu(Wire);
 
@@ -328,6 +332,8 @@ void setup() {
 
  OBJD_TIMER_LED.on();
 
+ OBJECTDETECTED_LED.off();
+
 }
 
 
@@ -399,8 +405,9 @@ void loop() {
     {
       if((sideRightDistance < OBJECT_DISTANCE)) // 45 is an arbitrary value to say that the thing is detected
       {
-        if(dfBool == true)
-        {
+        OBJECTDETECTED_LED.on();
+        //if(dfBool == true || level == 0)
+        //{
 
           StopMotors(topLeft, topRight, backLeft, backRight);
           objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
@@ -408,15 +415,18 @@ void loop() {
           //DriveBackward(topLeft, topRight, backLeft, backRight);
           
           //delay(BACKWARD_TIME);
-          StopMotors(topLeft, topRight, backLeft, backRight);
+          //StopMotors(topLeft, topRight, backLeft, backRight);
           //SetSpeeds(SLOW_TL_SR, SLOW_TR_SR, SLOW_BL_SR, SLOW_BR_SR);
             
-        }
-        else
-        {
-          delay(OBJD_DF_DT);
-          dfBool = true;
-        }
+        // }
+        // else
+        // {
+        //   StopMotors(topLeft, topRight, backLeft, backRight);
+        //   delay(500);
+        //   DriveForward(topLeft, topRight, backLeft, backRight, false);
+        //   delay(OBJD_DF_DT);
+        //   dfBool = true;
+        // }
         
       }
       else
