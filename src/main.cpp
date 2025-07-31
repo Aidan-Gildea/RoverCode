@@ -28,16 +28,16 @@
 
 // object detection strafe right delay time
 
-#define level 0
+#define level 1
 
-#define OBJD_SR_DT 3000 // 1000ms
+#define OBJD_SR_DT 0 // 1000ms
 #define OBJD_SL_DT 4000
-#define RIGHT_DISTANCE_TO_STOP 70 // if in quadrant 1, do 35, else do 60
-#define OBJECT_DISTANCE 38 // if in quadrant 1, do 21
+#define RIGHT_DISTANCE_TO_STOP 60 // if in quadrant 1, do 35, else do 60
+#define OBJECT_DISTANCE 30 // if in quadrant 1, do 21
 
-#define OBJD_DF_DT 1000 // for the objdetection
+#define OBJD_DF_DT 600 // for the objdetection
 
-#define LR_TIME 0
+#define LR_TIME 1000
 
 // i made a change
 #define enA_leftFront 2
@@ -81,9 +81,9 @@
 #define ROBOT_WIDTH 20
 
 
-#define TOO_CLOSE_THRESHOLD_L 18
-#define TOO_CLOSE_THRESHOLD_R 20
-#define TOO_CLOSE_THRESHOLD_FRONT 20
+#define TOO_CLOSE_THRESHOLD_L 20
+#define TOO_CLOSE_THRESHOLD_R 25
+#define TOO_CLOSE_THRESHOLD_FRONT 23
 
 
 #define TOO_CLOSE_THRESHOLD_OFFSET 13
@@ -96,10 +96,10 @@
 #define DELAY_TIME 50
 
 
-#define MAZE_TIME 10000 // 7 seconds
+#define MAZE_TIME 0 // 7 seconds
 
 
-#define STEPOVER_DELAY 200
+#define STEPOVER_DELAY 50
 
 
 #define TIMER_FLAG_PIN 35
@@ -109,16 +109,15 @@
 
 #define LR_OFFSET 20
 #define LEFT_DISTANCE_TO_STOP 15
-#define FRONT_DISTANCE_TO_STOP 45
+#define FRONT_DISTANCE_TO_STOP 47
 
 
 #define ANGLE_CORRECTION_THRESHOLD 6
 
-#define STOP_AND_GRAB_DISTANCE 15
 #define WAIT_TIME 300
 
 
-#define CLOSE_OBJECT 10
+#define CLOSE_OBJECT 15
 
 #define BACKWARD_TIME 300
 
@@ -174,6 +173,8 @@ void SetSpeeds(byte tl, byte tr, byte bl, byte br)
   backRight.setMotorSpeed(br);
 }
 
+void Home();
+
 // 判斷左右側總空間是否大於迷宮寬度 - 機器寬度
 bool conditionLR() {
   long left = sideLeftUltrasonic.readDistance();
@@ -184,6 +185,7 @@ bool conditionLR() {
   
   if(success) 
   {
+    StopMotors(topLeft, topRight, backLeft, backRight);
     LR_FLAG_LED.on();
     currentState = OBJECTDETECTION;
     //delay(300);
@@ -191,15 +193,19 @@ bool conditionLR() {
     //delay(400);
     //SetSpeeds(SLOW_TL_FB,SLOW_TR_FB,SLOW_BL_FB, SLOW_BR_FB);
     delay(LR_TIME);
-    StopMotors(topLeft, topRight, backLeft, backRight);
+
+    //Home();
 
     newTimer.reset();
     newTimer.setInterval(OBJD_SR_DT);
-    OBJD_TIMER_LED.off();
+
+
   }
   return success;
 
 }
+
+
 
 // void CorrectAngle()
 // {
@@ -225,7 +231,7 @@ bool conditionLR() {
 // // drive forward works
 
 
-bool driveForwardUntilFrontTooClose(bool isMazeNavigation) // makes sense
+bool driveForwardUntilFrontTooClose(bool isMazeNavigation, bool isOut) // makes sense
 {
 
 
@@ -238,14 +244,12 @@ bool driveForwardUntilFrontTooClose(bool isMazeNavigation) // makes sense
  bool firstCondition = false; 
  while (
  (frontLeftUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_FRONT) &&
- frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_FRONT && !conditionLR()
+ frontRightUltrasonic.readDistance() > TOO_CLOSE_THRESHOLD_FRONT && (!conditionLR() || isOut)
  )
  {
    firstCondition = true;
    //CorrectAngle();
    DriveForward(topLeft, topRight, backLeft, backRight, isMazeNavigation);
-    mpu.update();
-    Serial.println( mpu.getAngleZ());
    delay(50);
  }
  StopMotors(topLeft, topRight, backLeft, backRight);
@@ -276,8 +280,6 @@ bool driveLeftWhileCondition(bool isMazeNavigation) { // seems logically correct
    firstCondition = true;
    StrafeLeft(topLeft, topRight, backLeft, backRight, isMazeNavigation);
    delay(50); // to prevent junk values on ultrasonic sensors
-    mpu.update();
-    Serial.println( mpu.getAngleZ());
   }
   if (frontRightUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) {
     delay(STEPOVER_DELAY);
@@ -305,10 +307,7 @@ bool driveRightWhileCondition(bool isMazeNavigation) {  // seems logically corre
     frontLeftUltrasonic.readDistance() < (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) && !conditionLR()
   ) {
     firstCondition = true;
-    //CorrectAngle();
     StrafeRight(topLeft, topRight, backLeft, backRight, isMazeNavigation);
-    mpu.update();
-    Serial.println( mpu.getAngleZ());
     delay(50);
   }  
   if (frontLeftUltrasonic.readDistance() > (TOO_CLOSE_THRESHOLD_FRONT + TOO_CLOSE_THRESHOLD_OFFSET)) {
@@ -318,6 +317,26 @@ bool driveRightWhileCondition(bool isMazeNavigation) {  // seems logically corre
   return firstCondition;
 } 
 
+void Home() {  // seems logically correct
+  long left = sideLeftUltrasonic.readDistance();
+  long right = sideRightUltrasonic.readDistance();
+
+  while (((left + right) > (MAZE_WIDTH - ROBOT_WIDTH-LR_OFFSET)))
+  {
+    DriveBackward(topLeft, topRight, backLeft, backRight, true);
+    delay(50);
+    left = sideLeftUltrasonic.readDistance();
+    right = sideRightUltrasonic.readDistance();
+  }  
+  delay(400);
+  while(right > 20)
+  {
+    right = sideRightUltrasonic.readDistance();
+    StrafeRight(topLeft, topRight, backLeft, backRight, true);
+  } 
+  driveForwardUntilFrontTooClose(true, true);
+} 
+
 
 void setup() {
  Serial.begin(9600);
@@ -325,7 +344,7 @@ void setup() {
 //  mpu.begin();
 //  mpu.calcOffsets(true,true);
 
-  SetSpeeds(TL_L_SPEED, TR_L_SPEED, BL_L_SPEED, BR_L_SPEED);
+  //SetSpeeds(TL_L_SPEED, TR_L_SPEED, BL_L_SPEED, BR_L_SPEED);
 
 
  StopMotors(topLeft, topRight, backLeft, backRight);
@@ -363,16 +382,19 @@ int count = 0;
 
 bool dfBool = false;
 
-
 void loop() {
 
   // maze naviation 
   if(currentState == MAZENAVIGATION) 
   {
-    if(driveForwardUntilFrontTooClose(true)) delay(DELAY_TIME);
-    if(driveLeftWhileCondition(true)) delay(DELAY_TIME);
-    if(driveForwardUntilFrontTooClose(true)) delay(DELAY_TIME);
-    if(driveRightWhileCondition(true)) delay(DELAY_TIME);
+    driveForwardUntilFrontTooClose(true, false);
+    driveLeftWhileCondition(true);
+    driveForwardUntilFrontTooClose(true, false);
+    driveRightWhileCondition(true);
+    // if(driveForwardUntilFrontTooClose(true)) delay(DELAY_TIME);
+    // if(driveLeftWhileCondition(true)) delay(DELAY_TIME);
+    // if(driveForwardUntilFrontTooClose(true)) delay(DELAY_TIME);
+    // if(driveRightWhileCondition(true)) delay(DELAY_TIME);
   }
 
   // object detection 
@@ -387,24 +409,24 @@ void loop() {
     if(objdState == STRAFERIGHTUNTILRIGHTDISTANCE)
     {
       //if(newTimer.isReady()) OBJD_TIMER_LED.on();
-      
-      StrafeRight(topLeft, topRight, backLeft, backRight, false);
 
-      if(((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=3) && newTimer.isReady()) {
-        StopMotors(topLeft, topRight, backLeft, backRight);
+      if(((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count >=0) && newTimer.isReady()) {
+        // StopMotors(topLeft, topRight, backLeft, backRight);
         objdState = DRIVEFORWARDUNTILRIGHTDISTANCEDETECTED;
 
 
 
         // implement a timer here for level 1 
       }
-      else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 3)
+      else if((sideRightDistance < RIGHT_DISTANCE_TO_STOP)&& count < 0) // will skip line atm 
       {
         count++;
       }
       else
       {
         count = 0; 
+        StrafeRight(topLeft, topRight, backLeft, backRight, false);
+
       }
     }
 
@@ -438,7 +460,7 @@ void loop() {
     //---------------------------------------------
     else if(objdState == STRAFERIGHTUNTILOBJECTISCLOSE)
     {
-      StopMotors(topLeft, topRight, backLeft, backRight);
+      //StopMotors(topLeft, topRight, backLeft, backRight);
       StrafeRight(topLeft, topRight, backLeft, backRight, false);
       if(sideRightDistance < CLOSE_OBJECT) // arbitrary value to stay that the object is close
       {
@@ -471,7 +493,7 @@ void loop() {
     {
       if(frontDistance > FRONT_DISTANCE_TO_STOP) 
       {
-        while(frontDistance > FRONT_DISTANCE_TO_STOP)
+        while(frontDistance > FRONT_DISTANCE_TO_STOP + 10)
         {
           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveForward(topLeft, topRight, backLeft, backRight, false);
@@ -481,7 +503,7 @@ void loop() {
       } 
       else 
       {
-        while(frontDistance < FRONT_DISTANCE_TO_STOP)
+        while(frontDistance < FRONT_DISTANCE_TO_STOP - 10)
         {
           frontDistance = (frontRightUltrasonic.readDistance() + frontLeftUltrasonic.readDistance()) / 2;
           DriveBackward(topLeft, topRight, backLeft, backRight, false);

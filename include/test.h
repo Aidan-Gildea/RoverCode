@@ -3,47 +3,46 @@
 #include <Wire.h>
 #include <MPU6050_light.h>
 
-// speed values for going forward -- done 
+// speed values for going forward -- done
 
-#define BR_SPEED 250
+#define BR_SPEED 255
 #define BL_SPEED 255
-#define TL_SPEED 126
-#define TR_SPEED 132
+#define TL_SPEED 250
+#define TR_SPEED 255
 
 //regular motor speeds for strafing right-- done
-#define BR_R_SPEED 255
+#define BR_R_SPEED 240
 #define BL_R_SPEED 255
-#define TL_R_SPEED 145
-#define TR_R_SPEED 105
+#define TL_R_SPEED 235
+#define TR_R_SPEED 220
 
-//regular motor speeds for strafing left--done
-#define BR_L_SPEED 240
-#define BL_L_SPEED 238
-#define TL_L_SPEED 105
-#define TR_L_SPEED 120
+//regular motor speeds for strafing left --done
+#define BR_L_SPEED 250
+#define BL_L_SPEED 255
+#define TL_L_SPEED 235
+#define TR_L_SPEED 255
 
 
 // slower motor speeds for object driving forward / backward -- done
 
-#define SLOW_BR_FB 165
-#define SLOW_BL_FB 148
-#define SLOW_TL_FB 65
-#define SLOW_TR_FB 80
+#define SLOW_BR_FB 195
+#define SLOW_BL_FB 180
+#define SLOW_TL_FB 185
+#define SLOW_TR_FB 200
 
 
-// ---------- currently not using ------------
 
-// now for strafing left -- done
-#define SLOW_BR_SL 180
-#define SLOW_BL_SL 170
-#define SLOW_TL_SL 85
-#define SLOW_TR_SL 100
+// now for strafing left 
+#define SLOW_BR_SL BR_L_SPEED
+#define SLOW_BL_SL BL_L_SPEED
+#define SLOW_TL_SL TL_L_SPEED
+#define SLOW_TR_SL TR_L_SPEED
 
-//now for strafing right -- done
-#define SLOW_BR_SR 135
-#define SLOW_BL_SR 105
-#define SLOW_TL_SR 135
-#define SLOW_TR_SR 160
+//now for strafing right -- 
+#define SLOW_BR_SR 120
+#define SLOW_BL_SR 130
+#define SLOW_TL_SR 235
+#define SLOW_TR_SR 210
 
 // ------------------------------------------
 //now test for strafing right without wheel
