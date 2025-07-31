@@ -28,9 +28,9 @@
 
 // object detection strafe right delay time
 
-#define level 1
+#define level 0
 
-#define OBJD_SR_DT 2000 // 1000ms
+#define OBJD_SR_DT 3000 // 1000ms
 #define OBJD_SL_DT 4000
 #define RIGHT_DISTANCE_TO_STOP 70 // if in quadrant 1, do 35, else do 60
 #define OBJECT_DISTANCE 38 // if in quadrant 1, do 21
@@ -415,7 +415,7 @@ void loop() {
       {
         if(dfBool == true || level == 0)
         {
-          OBJECTDETECTED_LED.on();
+          //OBJECTDETECTED_LED.on();
           StopMotors(topLeft, topRight, backLeft, backRight);
           objdState = STRAFERIGHTUNTILOBJECTISCLOSE;
         }
