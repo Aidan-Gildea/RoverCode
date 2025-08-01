@@ -379,15 +379,9 @@ bool dfBool = false;
 
 void loop()
 {
-  DriveForward(topLeft, topRight, backLeft, backRight, true);
-  delay(1000);
   StrafeLeft(topLeft, topRight, backLeft, backRight, true);
-  delay(1000);
-  DriveBackward(topLeft, topRight, backLeft, backRight, true);
-  delay(1000);
-  StrafeRight(topLeft, topRight, backLeft, backRight, true);
-  delay(1000);
 }
+
 // void loop() {
 
 //   // maze naviation 
